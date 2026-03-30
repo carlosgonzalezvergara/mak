@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M.A.K. — Systemic Functional Linguistics Diagram Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap');
+
+        :root {
+            --parchment: #FAF6F1;
+            --parchment-deep: #F3EDE4;
+            --cream: #FFFDF9;
+            --ink: #2C2420;
+            --ink-light: #5C534D;
+            --ink-muted: #8C837B;
+            --rule: #D4C9BC;
+            --rule-light: #E8E0D6;
+            --accent: #8B3A3A;
+            --accent-hover: #6E2D2D;
+            --accent-soft: #F5EDED;
+            --accent-border: #D4A3A3;
+            --node-bg: #FFFEFA;
+            --node-shadow: 0 2px 8px rgba(44,36,32,0.08), 0 1px 2px rgba(44,36,32,0.06);
+            --node-shadow-hover: 0 4px 16px rgba(44,36,32,0.12), 0 2px 4px rgba(44,36,32,0.08);
+            --label-bg: #F9F4EE;
+            --label-bg-filled: #F0E8DF;
+            --label-border: #D4C9BC;
+            --label-border-filled: #B8A99A;
+            --label-text: #4A3F37;
+            --mak-text-scale: 1;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+            background-color: var(--parchment);
+            min-height: 100vh;
+            color: var(--ink);
+        }
+
+        /* ===========================================
+           MAIN LAYOUT — PANEL + CANVAS SPLIT
+           =========================================== */
+        .app-layout {
+            display: grid;
+            grid-template-columns: 210px 1fr;
+            min-height: 100vh;
+        }
+
+        /* ===========================================
+           LEFT PANEL
+           =========================================== */
+        .side-panel {
+            background: var(--parchment-deep);
+            border-right: 1px solid var(--rule);
+            padding: 18px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+        }
+
+        .panel-logo {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.4rem;
+            letter-spacing: 0.1em;
+            color: var(--ink);
+            text-align: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--rule);
+        }
+        .panel-logo small {
+            display: block;
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 0.45rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            margin-top: 3px;
+            font-weight: 500;
+        }
+
+        .panel-section-title {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--ink-muted);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .panel-input {
+            width: 100%;
+            padding: 9px 10px;
+            border: 1px solid var(--rule);
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: 'Source Sans 3', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .panel-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(139,58,58,0.1);
+        }
+        .panel-input::placeholder {
+            color: var(--ink-muted);
+            font-style: italic;
+        }
+
+        .panel-btn-row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .panel-btn {
+            flex: 1;
+            padding: 8px 0;
+            border: 1px solid var(--rule);
+            background: var(--cream);
+            border-radius: 6px;
+            font-size: 14px; /* Aumentado */
+            font-family: 'Source Sans 3', sans-serif;
+            font-weight: 600;
+            color: var(--ink-light);
+            cursor: pointer;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+        .panel-btn:hover {
+            background: var(--parchment-deep);
+            border-color: var(--ink-muted);
+        }
+        .panel-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .panel-btn.primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+        .panel-btn.primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .panel-tools {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .panel-tool-btn {
+            padding: 7px 10px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            font-size: 14px; /* Aumentado */
+            font-family: 'Source Sans 3', sans-serif;
+            color: var(--ink-light);
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s;
+        }
+        .panel-tool-btn:hover {
+            background: rgba(139,58,58,0.06);
+            color: var(--ink);
+        }
+        .panel-tool-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+        .panel-tool-btn:disabled:hover {
+            background: transparent;
+            color: var(--ink-light);
+        }
+
+        .panel-tool-icon {
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            color: currentColor;
+        }
+
+        .panel-spacer { flex: 1; }
+
+        .panel-footer {
+            padding-top: 12px;
+            border-top: 1px solid var(--rule);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Autosave in panel */
+        .panel-autosave {
+            font-size: 11px;
+            color: var(--ink-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 0;
+            min-height: 20px;
+        }
+        .panel-autosave-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: #7C9A6E; display: inline-block;
+        }
+        .panel-autosave-dot.saving {
+            background: #C4963C;
+            animation: pulse 1s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%,100% { transform: scale(1); opacity: .7; }
+            50% { transform: scale(1.35); opacity: 1; }
+        }
+        .autosave-ellipsis { display: inline-flex; margin-left: 1px; letter-spacing: 1px; }
+        .autosave-ellipsis span {
+            display: inline-block; width: 5px; text-align: center;
+            opacity: 0.2; animation: ellipsis 1s infinite;
+        }
+        .autosave-ellipsis span:nth-child(2) { animation-delay: 0.15s; }
+        .autosave-ellipsis span:nth-child(3) { animation-delay: 0.30s; }
+        @keyframes ellipsis {
+            0%,60%,100% { opacity: 0.2; }
+            30% { opacity: 1; }
+        }
+
+        /* Quick guide in panel */
+        .panel-guide-toggle {
+            padding: 7px 10px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            font-size: 14px; /* Aumentado */
+            font-family: 'Source Sans 3', sans-serif;
+            color: var(--ink-muted);
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s;
+        }
+        .panel-guide-toggle:hover {
+            background: rgba(139,58,58,0.06);
+            color: var(--ink);
+        }
+        .panel-guide-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .panel-guide-content.open {
+            max-height: 800px;
+        }
+        .panel-guide-inner {
+            padding: 10px 0;
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--ink-light);
+        }
+        .panel-guide-inner strong { color: var(--ink); }
+        .panel-guide-inner code {
+            background: var(--rule-light);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-family: 'SF Mono', Consolas, monospace;
+            color: var(--ink);
+        }
+        .guide-section { margin-bottom: 10px; }
+        .guide-section-title {
+            font-weight: 700;
+            color: var(--ink);
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+        .guide-section ul { padding-left: 14px; margin: 0; }
+        .guide-section li { margin-bottom: 3px; }
+        .guide-section li::marker { color: var(--accent); }
+
+        /* Zoom controls in panel */
+        .panel-zoom-controls {
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--cream); border: 1px solid var(--rule);
+            border-radius: 6px; padding: 4px;
+        }
+        .zoom-btn {
+            width: 30px; height: 30px;
+            border: none; background: transparent;
+            border-radius: 4px;
+            font-size: 18px; font-weight: 600;
+            color: var(--ink-light);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.15s;
+        }
+        .zoom-btn:hover:not(:disabled) { background: rgba(44,36,32,0.06); }
+        .zoom-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .zoom-indicator {
+            flex: 1; height: 30px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 600; color: var(--ink-muted);
+            cursor: pointer; border-radius: 4px;
+            user-select: none;
+            transition: background 0.15s, color 0.15s;
+        }
+        .zoom-indicator:hover { background: rgba(44,36,32,0.06); color: var(--ink); }
+
+
+        /* ===========================================
+           CANVAS (right side)
+           =========================================== */
+        .canvas-area {
+            background: var(--cream);
+            position: relative;
+            overflow: auto;
+            min-height: 100vh;
+        }
+
+        .tree-container {
+            padding: 40px;
+            position: relative;
+            overflow: auto;
+            max-width: 100%;
+            min-height: calc(100vh - 20px);
+        }
+
+        .tree-wrapper {
+            display: flex;
+            justify-content: flex-start;
+            padding: 20px 0;
+            position: relative;
+            width: fit-content;
+            min-width: 100%;
+            margin: 0 auto;
+        }
+
+        .canvas-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: var(--ink-muted);
+        }
+        .canvas-placeholder .big {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.3rem;
+            color: var(--rule);
+            margin-bottom: 6px;
+        }
+        .canvas-placeholder p {
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        .zoom-container { transform-origin: top left; }
+
+        /* ===========================================
+           TREE STRUCTURE
+           =========================================== */
+        .children-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            position: relative;
+        }
+        .child-branch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            padding-top: 24px;
+        }
+        .child-branch::before,
+        .child-branch::after {
+            content: "";
+            position: absolute; top: 0;
+            width: 50%; height: 24px;
+            border-top: 1.5px solid var(--ink-muted);
+        }
+        .child-branch::before { right: 50%; }
+        .child-branch::after { left: 50%; }
+        .child-branch:first-child::before { border-top: none; }
+        .child-branch:last-child::after { border-top: none; }
+
+        .v-line-stem {
+            width: 1.5px; height: 24px;
+            background-color: var(--ink-muted);
+            position: absolute; top: 0; left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* ===========================================
+           NODES — CARDS WITH ELEVATION
+           =========================================== */
+        .node-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            margin: 0 10px;
+            width: fit-content;
+        }
+
+        .connector-v {
+            width: 1.5px;
+            background-color: var(--ink-muted);
+            margin: 0 auto;
+        }
+
+        .node-box {
+            padding: 12px 24px;
+            border: 1px solid var(--rule);
+            border-radius: 6px;
+            background-color: var(--node-bg);
+            font-size: 16px;
+            font-family: 'Source Sans 3', sans-serif;
+            color: var(--ink);
+            min-width: 100px;
+            text-align: center;
+            position: relative;
+            box-shadow: var(--node-shadow);
+            transition: box-shadow 0.2s;
+        }
+        .node-box.can-divide {
+            border-color: var(--accent-border);
+            background-color: var(--accent-soft);
+            cursor: pointer;
+        }
+        .node-box.can-divide:hover {
+            box-shadow: var(--node-shadow-hover);
+        }
+
+        /* ===========================================
+           LABELS — MULTI-ROW
+           =========================================== */
+        .labels-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0px;
+            position: relative;
+            padding-bottom: 0;
+        }
+        .label-row {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            margin: 1px 0;
+        }
+
+        .label-input {
+            width: 140px;
+            text-align: center;
+            border: 1px dashed var(--rule);
+            border-radius: 4px;
+            padding: calc(4px * var(--mak-text-scale, 1));
+            font-size: calc(11px * var(--mak-text-scale, 1));
+            background: var(--label-bg);
+            color: var(--ink-muted);
+            font-family: 'Source Sans 3', sans-serif;
+        }
+        .label-input.has-value {
+            background-color: var(--label-bg-filled);
+            border: 1px solid var(--label-border-filled);
+            color: var(--label-text);
+        }
+
+        .label-display {
+            min-width: 140px;
+            text-align: center;
+            border: 1px dashed var(--rule);
+            border-radius: 4px;
+            padding: calc(4px * var(--mak-text-scale, 1));
+            font-size: calc(11px * var(--mak-text-scale, 1));
+            background: var(--label-bg);
+            color: var(--ink-muted);
+            font-family: 'Source Sans 3', sans-serif;
+            cursor: text;
+            display: inline-block;
+        }
+        .label-display.has-value {
+            background-color: var(--label-bg-filled);
+            border: 1px solid var(--label-border-filled);
+            color: var(--label-text);
+        }
+        .label-display:hover { border-color: var(--accent-border); }
+
+        .label-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .label-add-btn {
+            position: absolute;
+            bottom: -16px; left: 50%;
+            transform: translateX(-50%);
+            width: 18px; height: 14px;
+            border-radius: 3px;
+            border: 1px solid var(--rule);
+            background: var(--parchment-deep);
+            color: var(--accent);
+            font-size: 12px; font-weight: bold;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: all 0.15s;
+            padding: 0; z-index: 5;
+        }
+        .labels-stack:hover .label-add-btn { opacity: 1; pointer-events: auto; }
+        .label-add-btn:hover {
+            background: var(--accent-soft);
+            border-color: var(--accent-border);
+        }
+
+        .label-remove-btn {
+            position: absolute;
+            right: -16px; top: 50%;
+            transform: translateY(-50%);
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            border: 1px solid #dcc;
+            background: #fff; color: #b44;
+            font-size: 9px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.15s;
+            padding: 0; line-height: 1; z-index: 5;
+        }
+        .label-row:hover .label-remove-btn { opacity: 1; pointer-events: auto; }
+        .label-remove-btn:hover { background: #fef2f2; border-color: #c44; }
+
+        /* ===========================================
+           PUENTES INVISIBLES PARA HOVER DE ETIQUETAS
+           =========================================== */
+        .labels-stack:hover::after {
+            content: '';
+            position: absolute;
+            bottom: -20px; /* Cubre el espacio vacío hacia el botón + */
+            left: 0;
+            right: 0;
+            height: 20px;
+            z-index: 4;
+        }
+
+        .label-row:hover::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            bottom: -10px;
+            right: -20px; /* Cubre el espacio vacío hacia el botón x */
+            width: 20px;
+            z-index: 4;
+        }
+
+        /* ===========================================
+           NODE ACTION BUTTONS
+           =========================================== */
+        .clear-text-btn {
+            position: absolute; top: -10px; right: -10px;
+            background: #c44; color: white; border: none; border-radius: 50%;
+            width: 18px; height: 18px; font-size: 10px;
+            cursor: pointer; display: none;
+            align-items: center; justify-content: center;
+        }
+        .node-box:hover .clear-text-btn { display: flex; }
+
+        .add-node-btn {
+            position: absolute; bottom: -10px; left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent); color: white; border: none; border-radius: 50%;
+            width: 18px; height: 18px; font-size: 12px;
+            cursor: pointer; display: none;
+            align-items: center; justify-content: center;
+        }
+        .node-box:hover .add-node-btn { display: flex; }
+
+        .consolidate-btn {
+            position: absolute; top: -10px; left: -10px;
+            background: #C4963C; color: white; border: none; border-radius: 50%;
+            width: 18px; height: 18px; font-size: 10px;
+            cursor: pointer; display: none;
+            align-items: center; justify-content: center;
+        }
+        .node-box:hover .consolidate-btn { display: flex; }
+
+        /* ===========================================
+           EDIT NODE TEXT
+           =========================================== */
+        .edit-text-btn {
+            position: absolute; bottom: -10px; right: -10px;
+            background: #4A8B71; color: white; border: none; border-radius: 50%;
+            width: 18px; height: 18px; font-size: 10px;
+            cursor: pointer; display: none;
+            align-items: center; justify-content: center;
+            z-index: 10;
+        }
+        .node-box:hover .edit-text-btn { display: flex; }
+
+        .node-box-row {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+        .node-revert-btn {
+            position: absolute; left: 100%; top: 50%;
+            transform: translate(2px, -50%);
+            z-index: 50; pointer-events: auto;
+        }
+
+        .btn-danger-soft {
+            background-color: var(--accent-soft);
+            color: #991b1b;
+            border: 1px solid var(--accent-border);
+            padding: 4px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .btn-danger-soft:hover {
+            background-color: #fecaca;
+            border-color: #f87171;
+        }
+
+        /* ===========================================
+           NEW DIAGRAM MODAL
+           =========================================== */
+        .new-diagram-modal {
+            width: min(480px, calc(100vw - 32px));
+            background: var(--cream);
+            border: 1px solid var(--rule-light);
+            border-radius: 10px;
+            box-shadow: 0 20px 40px rgba(44,36,32,0.18);
+            padding: 22px 22px 18px;
+        }
+        .new-diagram-title {
+            font-weight: 700;
+            color: var(--ink);
+            margin: 0 0 6px;
+            font-family: 'DM Serif Display', serif;
+            font-size: 18px;
+        }
+        .new-diagram-sub {
+            margin: 0 0 14px;
+            color: var(--ink-light);
+            font-size: 13px;
+        }
+        .new-diagram-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--rule);
+            border-radius: 6px;
+            font-size: 15px;
+            font-family: 'Source Sans 3', sans-serif;
+            background: #fff;
+            color: var(--ink);
+            outline: none;
+            margin-bottom: 14px;
+        }
+        .new-diagram-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(139,58,58,0.1);
+        }
+        .new-diagram-input::placeholder {
+            color: var(--ink-muted);
+            font-style: italic;
+        }
+        .new-diagram-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        /* Estilos para el panel IPA en New Diagram */
+        .ipa-toggle-btn {
+            padding: 9px 12px; border: 1px solid var(--rule); border-radius: 6px; 
+            background: white; cursor: pointer; font-family: 'Source Sans 3', sans-serif; 
+            font-size: 13px; font-weight: 600; color: var(--ink-muted); 
+            transition: all 0.2s ease; white-space: nowrap; display: flex; 
+            align-items: center; gap: 6px;
+        }
+        .ipa-toggle-btn:hover { background: var(--parchment-deep); border-color: var(--ink-muted); color: var(--ink); }
+        .ipa-toggle-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .ipa-toggle-btn.active:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+        .ipa-panel { 
+            background: white; border: 1px solid var(--rule); border-radius: 8px; 
+            padding: 10px; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(44,36,32,0.08); 
+            max-height: 200px; overflow-y: auto; 
+        }
+        .ipa-category-title { 
+            font-family: 'Source Sans 3', sans-serif; font-size: 10px; font-weight: 600; 
+            text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-muted); 
+            margin-top: 6px; margin-bottom: 3px; padding-left: 2px; 
+        }
+        .ipa-category-title:first-child { margin-top: 0; }
+        .ipa-grid { display: flex; flex-wrap: wrap; gap: 2px; }
+        .ipa-char-btn { 
+            width: 27px; height: 27px; border: 1px solid var(--rule-light); border-radius: 4px; 
+            background: var(--parchment); cursor: pointer; font-family: 'Source Sans 3', sans-serif; 
+            font-size: 14px; color: var(--ink); display: flex; align-items: center; justify-content: center; 
+            transition: all 0.15s ease; padding: 0; 
+        }
+        .ipa-char-btn:hover { background: var(--accent); color: white; border-color: var(--accent); transform: scale(1.12); }
+        .ipa-char-btn:active { transform: scale(0.95); }
+
+        /* ===========================================
+           MODALS
+           =========================================== */
+        .pos-overlay {
+            position: fixed; inset: 0;
+            background: rgba(44,36,32,0.35);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999;
+        }
+        .pos-modal {
+            width: min(520px, calc(100vw - 32px));
+            background: var(--cream);
+            border: 1px solid var(--rule-light);
+            border-radius: 10px;
+            box-shadow: 0 20px 40px rgba(44,36,32,0.18);
+            padding: 18px 18px 14px;
+        }
+        .pos-title { font-weight: 700; color: var(--ink); margin: 0 0 6px; font-family: 'DM Serif Display', serif; }
+        .pos-sub { margin: 0 0 12px; color: var(--ink-light); font-size: 13px; }
+        .pos-row { display: flex; gap: 10px; align-items: center; }
+        .pos-select { flex: 1; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 6px; font-size: 14px; background: #fff; color: var(--ink); font-family: 'Source Sans 3', sans-serif; }
+        .pos-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
+
+        .btn { padding: 9px 20px; border: 1px solid transparent; border-radius: 6px; font-size: 14px; font-weight: 600; font-family: 'Source Sans 3', sans-serif; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; line-height: 1; user-select: none; }
+        .btn:active { transform: translateY(1px); }
+        .btn-primary { background-color: var(--accent); color: #fff; }
+        .btn-primary:hover { background-color: var(--accent-hover); }
+        .btn-outline { background-color: var(--cream); border-color: var(--rule); color: var(--ink); }
+        .btn-outline:hover { background-color: var(--parchment-deep); border-color: var(--ink-muted); }
+
+        /* ===========================================
+           FOOTER (inside panel)
+           =========================================== */
+        .footer { text-align: center; color: var(--ink-muted); font-size: 11px; padding: 8px 0 0; }
+        .footer a { color: var(--ink-light); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        .footer img { opacity: 0.6; transition: opacity 0.2s; display: block; margin: 6px auto 0; height: 20px; }
+        .footer img:hover { opacity: 1; }
+
+        /* ===========================================
+           RESPONSIVE
+           =========================================== */
+        @media (max-width: 600px) {
+            .app-layout {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+            }
+            .side-panel {
+                border-right: none;
+                border-bottom: 1px solid var(--rule);
+                padding: 12px;
+                gap: 10px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+            .panel-logo { padding-bottom: 0; border-bottom: none; }
+            .canvas-area { min-height: 500px; }
+            .panel-spacer { display: none; }
+            .panel-guide-toggle { display: none; }
+            .panel-guide-content { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect, useCallback, useMemo } = React;
+
+        const debounce = (func, delay) => {
+            let timeout;
+            return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => func(...args), delay); };
+        };
+
+        const IPA_CATEGORIES = [
+            { title: 'Vowels', chars: 'i y ɨ ʉ ɯ u ɪ ʏ ʊ e ø ɘ ɵ ɤ o ə ɛ œ ɜ ɞ ʌ ɔ æ ɐ a ɶ ɑ ɒ'.split(' ') },
+            { title: 'Plosives', chars: 'p b t d ʈ ɖ c ɟ k ɡ q ɢ ʔ'.split(' ') },
+            { title: 'Nasals', chars: 'm ɱ n ɳ ɲ ŋ ɴ'.split(' ') },
+            { title: 'Fricatives', chars: 'ɸ β f v θ ð s z ʃ ʒ ʂ ʐ ɕ ʑ ç ʝ x ɣ χ ʁ ħ ʕ ʜ ʢ h ɦ'.split(' ') },
+            { title: 'Lateral Fricatives', chars: 'ɬ ɮ'.split(' ') },
+            { title: 'Approximants', chars: 'ʋ ɹ ɻ j ɰ'.split(' ') },
+            { title: 'Lateral Approximants', chars: 'l ɭ ʎ ʟ'.split(' ') },
+            { title: 'Trills & Taps', chars: 'ʙ r ʀ ⱱ ɾ ɽ ɺ'.split(' ') },
+            { title: 'Affricates', chars: 't͡s d͡z t͡ʃ d͡ʒ t͡ɕ d͡ʑ ʈ͡ʂ ɖ͡ʐ'.split(' ') },
+            { title: 'Clicks', chars: 'ʘ ǀ ǃ ǂ ǁ'.split(' ') },
+            { title: 'Implosives & Ejectives', chars: 'ɓ ɗ ʄ ɠ ʛ ʼ'.split(' ') },
+            { title: 'Co-articulated', chars: 'ʍ w ɥ ɧ'.split(' ') },
+            { title: 'Suprasegmentals', chars: 'ˈ ˌ ː ˑ ˘ ‿ | ‖ . ̆'.split(' ') },
+            { title: 'Diacritics – Voicing & Airstream', chars: '̥ ̬ ̤ ̰ ̼ ̚'.split(' ') },
+            { title: 'Diacritics – Place', chars: '̪ ̺ ̻ ̟ ̠ ̘ ̙'.split(' ') },
+            { title: 'Diacritics – Manner', chars: '̝ ̞ ̹ ̜ ̈ ̽ ̩ ̯ ˞ ̃ ̴'.split(' ') },
+            { title: 'Diacritics – Secondary', chars: 'ʰ ʷ ʲ ˠ ˤ ⁿ ˡ ˀ'.split(' ') },
+            { title: 'Tones – Level (Chao)', chars: '˥ ˦ ˧ ˨ ˩'.split(' ') },
+            { title: 'Tones – Diacritics', chars: '̋ ́ ̄ ̀ ̏'.split(' ') },
+            { title: 'Tones – Contour', chars: '̌ ̂ ᷄ ᷅ ᷈ ↗ ↘'.split(' ') },
+            { title: 'Brackets & Delimiters', chars: '/ [ ] ⟨ ⟩ { }'.split(' ') },
+        ];
+
+        const computeTextScale = (zoomLevel) => {
+            const z = zoomLevel / 100;
+            if (z >= 1) return 1;
+            return Math.pow(z, 0.24);
+        };
+
+        const SyntaxTreeBuilder = () => {
+            // ===========================================
+            // ESTADO
+            // ===========================================
+            const [sentence, setSentence] = useState('');
+            const [tree, setTree] = useState(null);
+            const [divisionMode, setDivisionMode] = useState(null);
+            const [selectedCuts, setSelectedCuts] = useState([]);
+            const [posPicker, setPosPicker] = useState(null);
+
+            // Historial Undo/Redo
+            const [history, setHistory] = useState([]);
+            const [historyIndex, setHistoryIndex] = useState(-1);
+            const isUndoRedo = useRef(false);
+
+            // Referencias
+            const fileInputRef = useRef(null);
+            const treeContainerRef = useRef(null);
+            const zoomContainerRef = useRef(null);
+
+            // Zoom
+            const [zoomLevel, setZoomLevel] = useState(100);
+            const ZOOM_MIN = 40;
+            const ZOOM_MAX = 200;
+            const ZOOM_STEP = 20;
+
+            // Auto-guardado
+            const [isSaving, setIsSaving] = useState(false);
+            const [lastSaved, setLastSaved] = useState(null);
+            const formatTimeAgo = (dateObj) => {
+                if (!dateObj) return '';
+                const diffMs = Date.now() - dateObj.getTime();
+                const diffSec = Math.max(0, Math.floor(diffMs / 1000));
+                if (diffSec < 10) return 'just now';
+                if (diffSec < 60) return 'a few seconds ago';
+                const diffMin = Math.floor(diffSec / 60);
+                if (diffMin < 60) return `${diffMin} min ago`;
+                const diffHr = Math.floor(diffMin / 60);
+                return `${diffHr} h ago`;
+            };
+
+            // Escala tipográfica
+            const textScale = useMemo(() => computeTextScale(zoomLevel), [zoomLevel]);
+
+            const makeZoomHandlers = (setter) => ({
+                zoomIn:    () => setter(prev => Math.min(prev + ZOOM_STEP, ZOOM_MAX)),
+                zoomOut:   () => setter(prev => Math.max(prev - ZOOM_STEP, ZOOM_MIN)),
+                zoomReset: () => setter(100),
+            });
+            const { zoomIn, zoomOut, zoomReset } = useMemo(() => makeZoomHandlers(setZoomLevel), []);
+
+            // Etiqueta en edición
+            const [editingLabel, setEditingLabel] = useState(null);
+            const [editingNode, setEditingNode] = useState(null);
+
+            // ===========================================
+            // UTILIDADES
+            // ===========================================
+            const getFileName = (extension) => {
+                const words = sentence.trim().split(/\s+/).slice(0, 5).join('_');
+                const ext = extension === 'json' ? 'mak' : extension;
+                return `${words}.${ext}`;
+            };
+
+            const createEmptyTree = (text) => ({
+                id: 'root',
+                text: text.trim(), // Sin detección automática
+                labels: [''],
+                children: null,
+                isNucleus: false,
+                isConsolidated: false
+            });
+
+            const makeNewNode = (text = '') => ({
+                id: `added-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                text,
+                labels: ['', ''],
+                children: null,
+                isNucleus: false,
+                isInserted: true,
+                isConsolidated: false
+            });
+
+            const updateNode = (node, id, updates) => {
+                if (node.id === id) return { ...node, ...updates };
+                if (node.children) {
+                    return { ...node, children: node.children.map(c => updateNode(c, id, updates)) };
+                }
+                return node;
+            };
+
+            const findNodeById = (n, id) => {
+                if (!n) return null;
+                if (n.id === id) return n;
+                if (n.children) {
+                    for (const c of n.children) {
+                        const r = findNodeById(c, id);
+                        if (r) return r;
+                    }
+                }
+                return null;
+            };
+
+            const shorten = (s, n = 18) => {
+                const t = (s || '').trim();
+                if (!t) return '∅';
+                return t.length > n ? t.slice(0, n - 1) + '…' : t;
+            };
+
+            const buildPosLabel = (i, siblings) => {
+                const n = siblings.length;
+                if (n === 0) return 'Only position';
+                if (i === 1) return 'At the beginning';
+                if (i === n + 1) return 'At the end';
+                const left = shorten(siblings[i - 2]);
+                const right = shorten(siblings[i - 1]);
+                return `Between "${left}" and "${right}"`;
+            };
+
+            // ===========================================
+            // FORMATO DE TEXTO EN ETIQUETAS
+            // ===========================================
+            const formatLabelText = (text) => {
+                if (!text) return null;
+                const parts = [];
+                let remaining = text;
+                let key = 0;
+                const patterns = [
+                    { regex: /\*\*([^*]+)\*\*/, style: { fontWeight: 'bold' } },
+                    { regex: /\*([^*]+)\*/, style: { fontStyle: 'italic' } },
+                    { regex: /__([^_]+)__/, style: { fontSize: '0.75em', verticalAlign: 'super' } },
+                    { regex: /_([^_]+)_/, style: { fontSize: '0.75em', verticalAlign: 'sub' } }
+                ];
+                while (remaining.length > 0) {
+                    let earliestMatch = null;
+                    let earliestIndex = remaining.length;
+                    let matchedPattern = null;
+                    for (const pattern of patterns) {
+                        const match = remaining.match(pattern.regex);
+                        if (match && match.index < earliestIndex) {
+                            earliestMatch = match;
+                            earliestIndex = match.index;
+                            matchedPattern = pattern;
+                        }
+                    }
+                    if (earliestMatch && matchedPattern) {
+                        if (earliestIndex > 0) parts.push(<span key={key++}>{remaining.substring(0, earliestIndex)}</span>);
+                        parts.push(<span key={key++} style={matchedPattern.style}>{earliestMatch[1]}</span>);
+                        remaining = remaining.substring(earliestIndex + earliestMatch[0].length);
+                    } else {
+                        parts.push(<span key={key++}>{remaining}</span>);
+                        break;
+                    }
+                }
+                return parts.length > 0 ? parts : text;
+            };
+
+            const applyFormatToSpan = (span, text) => {
+                if (!text) { span.textContent = ''; return; }
+                span.innerHTML = '';
+                let remaining = text;
+                const patterns = [
+                    { regex: /\*\*([^*]+)\*\*/, tag: 'strong', style: '' },
+                    { regex: /\*([^*]+)\*/, tag: 'em', style: '' },
+                    { regex: /__([^_]+)__/, tag: 'sup', style: 'font-size: 0.75em;' },
+                    { regex: /_([^_]+)_/, tag: 'sub', style: 'font-size: 0.75em;' }
+                ];
+                while (remaining.length > 0) {
+                    let earliestMatch = null;
+                    let earliestIndex = remaining.length;
+                    let matchedPattern = null;
+                    for (const pattern of patterns) {
+                        const match = remaining.match(pattern.regex);
+                        if (match && match.index < earliestIndex) {
+                            earliestMatch = match;
+                            earliestIndex = match.index;
+                            matchedPattern = pattern;
+                        }
+                    }
+                    if (earliestMatch && matchedPattern) {
+                        if (earliestIndex > 0) span.appendChild(document.createTextNode(remaining.substring(0, earliestIndex)));
+                        const el = document.createElement(matchedPattern.tag);
+                        if (matchedPattern.style) el.style.cssText = matchedPattern.style;
+                        el.textContent = earliestMatch[1];
+                        span.appendChild(el);
+                        remaining = remaining.substring(earliestIndex + earliestMatch[0].length);
+                    } else {
+                        span.appendChild(document.createTextNode(remaining));
+                        break;
+                    }
+                }
+            };
+
+            // ===========================================
+            // HISTORIAL UNDO/REDO
+            // ===========================================
+            useEffect(() => {
+                if (tree && !isUndoRedo.current) {
+                    setHistory(prev => {
+                        const newHistory = prev.slice(0, historyIndex + 1);
+                        newHistory.push(JSON.stringify(tree));
+                        if (newHistory.length > 50) newHistory.shift();
+                        return newHistory;
+                    });
+                    setHistoryIndex(prev => Math.min(prev + 1, 49));
+                }
+                isUndoRedo.current = false;
+            }, [tree]);
+
+            const canUndo = historyIndex > 0;
+            const canRedo = historyIndex < history.length - 1;
+
+            const handleUndo = useCallback(() => {
+                if (canUndo) {
+                    isUndoRedo.current = true;
+                    setHistoryIndex(prev => prev - 1);
+                    setTree(JSON.parse(history[historyIndex - 1]));
+                }
+            }, [canUndo, history, historyIndex]);
+
+            const handleRedo = useCallback(() => {
+                if (canRedo) {
+                    isUndoRedo.current = true;
+                    setHistoryIndex(prev => prev + 1);
+                    setTree(JSON.parse(history[historyIndex + 1]));
+                }
+            }, [canRedo, history, historyIndex]);
+
+            // ===========================================
+            // GUARDAR
+            // ===========================================
+            const handleSaveJSON = useCallback(() => {
+                if (!tree) return;
+                const blob = new Blob([JSON.stringify({ sentence, tree }, null, 2)], { type: 'application/json' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = getFileName('json');
+                a.click();
+                localStorage.removeItem('mak-autosave');
+                setLastSaved(null);
+            }, [tree, sentence]);
+
+            // ===========================================
+            // AUTO-GUARDADO
+            // ===========================================
+            const performAutoSave = useCallback(() => {
+                if (!tree || isUndoRedo.current) return;
+                setIsSaving(true);
+                const data = { sentence, tree, divisionMode, selectedCuts, timestamp: new Date().toISOString(), version: '1.0' };
+                try {
+                    localStorage.setItem('mak-autosave', JSON.stringify(data));
+                    setLastSaved(new Date());
+                    setTimeout(() => setIsSaving(false), 500);
+                } catch (err) {
+                    console.error('Error auto-saving:', err);
+                    setIsSaving(false);
+                }
+            }, [sentence, tree, divisionMode, selectedCuts]);
+
+            const autoSaveDebounced = useRef(null);
+            if (!autoSaveDebounced.current) {
+                autoSaveDebounced.current = debounce((saveFn) => saveFn(), 3000);
+            }
+
+            useEffect(() => {
+                if (tree && !isUndoRedo.current) {
+                    autoSaveDebounced.current(performAutoSave);
+                }
+            }, [sentence, tree, divisionMode, selectedCuts, performAutoSave]);
+
+            // Restore on mount
+            useEffect(() => {
+                const saved = localStorage.getItem('mak-autosave');
+                if (!saved) return;
+                try {
+                    const data = JSON.parse(saved);
+                    const savedDate = new Date(data.timestamp);
+                    const minutesAgo = Math.round((Date.now() - savedDate.getTime()) / 60000);
+                    const message = minutesAgo < 1
+                        ? 'Unsaved work found.\n\nDo you want to continue where you left off?'
+                        : `Unsaved work found from ${minutesAgo} minute${minutesAgo === 1 ? '' : 's'} ago.\n\nDo you want to continue where you left off?`;
+                    if (confirm(message)) {
+                        isUndoRedo.current = true;
+                        setSentence(data.sentence || '');
+                        setTree(data.tree || null);
+                        setDivisionMode(data.divisionMode ?? null);
+                        setSelectedCuts(Array.isArray(data.selectedCuts) ? data.selectedCuts : []);
+                        setHistory([]);
+                        setHistoryIndex(-1);
+                        setTimeout(() => { isUndoRedo.current = false; }, 0);
+                    } else {
+                        localStorage.removeItem('mak-autosave');
+                        setLastSaved(null);
+                    }
+                } catch (err) {
+                    console.error('Error restoring auto-save:', err);
+                    localStorage.removeItem('mak-autosave');
+                }
+            }, []);
+
+            // ===========================================
+            // ATAJOS DE TECLADO
+            // ===========================================
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+                    const modifier = isMac ? e.metaKey : e.ctrlKey;
+                    const key = e.key.toLowerCase();
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                        if (modifier && key === 's') { e.preventDefault(); handleSaveJSON(); }
+                        return;
+                    }
+                    if (modifier && key === 'z' && !e.shiftKey) { e.preventDefault(); handleUndo(); }
+                    else if (modifier && key === 'z' && e.shiftKey) { e.preventDefault(); handleRedo(); }
+                    else if (modifier && key === 'y') { e.preventDefault(); handleRedo(); }
+                    else if (modifier && key === 's') { e.preventDefault(); handleSaveJSON(); }
+                    else if (modifier && (key === '+' || key === '=')) { e.preventDefault(); zoomIn(); }
+                    else if (modifier && key === '-') { e.preventDefault(); zoomOut(); }
+                    else if (modifier && key === '0') { e.preventDefault(); zoomReset(); }
+                };
+                window.addEventListener('keydown', handleKeyDown);
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, [handleUndo, handleRedo, handleSaveJSON, zoomIn, zoomOut, zoomReset]);
+
+            // ===========================================
+            // ACCIONES PRINCIPALES
+            // ===========================================
+            const startAnalysis = (overrideSentence) => {
+                const text = overrideSentence !== undefined ? overrideSentence : sentence;
+                if (text.trim()) {
+                    if (overrideSentence !== undefined) setSentence(overrideSentence);
+                    const newTree = createEmptyTree(text);
+                    setTree(newTree);
+                    setDivisionMode(null);
+                    setSelectedCuts([]);
+                    setHistory([JSON.stringify(newTree)]);
+                    setHistoryIndex(0);
+                }
+            };
+
+            const handleStartAnalysis = () => {
+                if (!sentence.trim()) return;
+                startAnalysis();
+            };
+
+            const handleDivide = () => {
+                const node = findNodeById(tree, divisionMode);
+                const words = node.text.split(/\s+/);
+                const segments = [];
+                let start = 0;
+                const sortedCuts = [...selectedCuts].sort((a, b) => a - b);
+                [...sortedCuts, words.length - 1].forEach(cut => {
+                    segments.push(words.slice(start, cut + 1).join(' '));
+                    start = cut + 1;
+                });
+                const children = segments.filter(s => s.trim()).map((s, i) => ({
+                    id: `${divisionMode}-${i}-${Date.now()}`,
+                    text: s,
+                    labels: ['', ''],
+                    children: null,
+                    isNucleus: false,
+                    isConsolidated: false
+                }));
+                setTree(prev => updateNode(prev, divisionMode, { children }));
+                setDivisionMode(null);
+                setSelectedCuts([]);
+            };
+
+            const toggleConsolidated = (nodeId) => {
+                setTree(prev => {
+                    const node = findNodeById(prev, nodeId);
+                    return updateNode(prev, nodeId, { isConsolidated: !node.isConsolidated });
+                });
+            };
+
+            const expandNode = (nodeId) => {
+                setTree(prev => {
+                    const node = findNodeById(prev, nodeId);
+                    if (!node || node.children) return prev;
+                    const childNode = {
+                        id: `${nodeId}-child-${Date.now()}`,
+                        text: node.text,
+                        labels: ['', ''],
+                        children: null,
+                        isNucleus: node.isNucleus,
+                        isConsolidated: false
+                    };
+                    return updateNode(prev, nodeId, { children: [childNode], isNucleus: false });
+                });
+            };
+
+            const addChildNode = (parentId) => {
+                const txt = window.prompt('Text for the extra node:');
+                if (txt === null) return;
+                const parent = findNodeById(tree, parentId);
+                const existing = parent?.children ? [...parent.children] : [];
+                const siblings = existing.map(c => (c.text || '').trim() || '∅');
+                setPosPicker({ parentId, txt: txt.trim(), siblings, pos: 1 });
+            };
+
+            const confirmInsertAtPosition = () => {
+                if (!posPicker) return;
+                const { parentId, txt, pos } = posPicker;
+                setTree(prev => {
+                    const parent = findNodeById(prev, parentId);
+                    const existing = parent?.children ? [...parent.children] : [];
+                    let p = Math.max(1, Math.min(existing.length + 1, parseInt(pos, 10) || existing.length + 1));
+                    const newNode = makeNewNode(txt);
+                    existing.splice(p - 1, 0, newNode);
+                    return updateNode(prev, parentId, { children: existing });
+                });
+                setPosPicker(null);
+            };
+
+            // ===========================================
+            // LABEL MANAGEMENT (multi-row)
+            // ===========================================
+            const addLabelRow = (nodeId) => {
+                setTree(prev => {
+                    const node = findNodeById(prev, nodeId);
+                    if (!node || node.labels.length >= 5) return prev;
+                    return updateNode(prev, nodeId, { labels: [...node.labels, ''] });
+                });
+            };
+
+            const removeLabelRow = (nodeId, labelIndex) => {
+                setTree(prev => {
+                    const node = findNodeById(prev, nodeId);
+                    if (!node || node.labels.length <= 1) return prev;
+                    const newLabels = node.labels.filter((_, i) => i !== labelIndex);
+                    return updateNode(prev, nodeId, { labels: newLabels });
+                });
+            };
+
+            const updateLabel = (nodeId, labelIndex, value) => {
+                setTree(prev => {
+                    const node = findNodeById(prev, nodeId);
+                    if (!node) return prev;
+                    const newLabels = [...node.labels];
+                    newLabels[labelIndex] = value;
+                    return updateNode(prev, nodeId, { labels: newLabels });
+                });
+            };
+
+            // ===========================================
+            // CARGAR ARCHIVOS
+            // ===========================================
+            const handleLoadJSON = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        if (!imported.tree || !imported.sentence) {
+                            alert('Error: The file does not have the expected format.');
+                            return;
+                        }
+                        // Migrar formato ENT si es necesario
+                        const migrateNode = (node) => {
+                            if (!node) return node;
+                            const migrated = { ...node };
+                            if (!migrated.labels) {
+                                migrated.labels = [migrated.labelTop || ''];
+                                delete migrated.labelTop;
+                                delete migrated.labelBottom;
+                            }
+                            if (migrated.children) migrated.children = migrated.children.map(migrateNode);
+                            return migrated;
+                        };
+                        const migratedTree = migrateNode(imported.tree);
+                        setSentence(imported.sentence || '');
+                        setTree(migratedTree);
+                        setHistory([JSON.stringify(migratedTree)]);
+                        setHistoryIndex(0);
+                        localStorage.removeItem('mak-autosave');
+                        setLastSaved(null);
+                    } catch (error) {
+                        alert('Error reading file.\n\nDetail: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+                event.target.value = '';
+            };
+
+            // ===========================================
+            // EXPORTACIÓN PNG
+            // ===========================================
+            const handleExport = async () => {
+                const treeWrapper = document.querySelector('.tree-container .tree-wrapper');
+                if (!treeWrapper) return;
+                const treeContainer = document.querySelector('.tree-container');
+
+                const savedZoom = zoomLevel;
+                setZoomLevel(100);
+                await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+                await new Promise(resolve => setTimeout(resolve, 50));
+
+                try {
+                    const originalOverflow = treeContainer.style.overflow;
+                    const originalWidth = treeContainer.style.width;
+                    const originalMaxWidth = treeContainer.style.maxWidth;
+                    treeContainer.style.overflow = 'visible';
+                    treeContainer.style.width = 'fit-content';
+                    treeContainer.style.maxWidth = 'none';
+
+                    const undoBtns = treeWrapper.querySelectorAll('.btn-danger-soft');
+                    const clearBtns = treeWrapper.querySelectorAll('.clear-text-btn');
+                    const addBtns = treeWrapper.querySelectorAll('.add-node-btn');
+                    const labelAddBtns = treeWrapper.querySelectorAll('.label-add-btn');
+                    const labelRemoveBtns = treeWrapper.querySelectorAll('.label-remove-btn');
+                    const editBtns = treeWrapper.querySelectorAll('.edit-text-btn');
+
+                    undoBtns.forEach(b => b.style.visibility = 'hidden');
+                    clearBtns.forEach(b => b.style.display = 'none');
+                    addBtns.forEach(b => b.style.display = 'none');
+                    labelAddBtns.forEach(b => b.style.display = 'none');
+                    labelRemoveBtns.forEach(b => b.style.display = 'none');
+                    editBtns.forEach(b => b.style.display = 'none');
+
+                    const connectors = treeWrapper.querySelectorAll('.connector-v, .v-line-stem');
+                    const nodeBoxes = treeWrapper.querySelectorAll('.node-box');
+                    const inputData = [];
+
+                    const originalInlineStyles = {
+                        connectors: Array.from(connectors).map(el => ({ el, cssText: el.style.cssText })),
+                        nodeBoxes: Array.from(nodeBoxes).map(el => ({ el, cssText: el.style.cssText })),
+                        treeWrapperPos: treeWrapper.style.position
+                    };
+
+                    const getLabelValue = (element) => {
+                        if (!element) return '';
+                        if (element.tagName === 'INPUT') return element.value.trim();
+                        const rawValue = element.getAttribute('data-raw-value');
+                        return rawValue !== null ? rawValue.trim() : element.textContent.trim();
+                    };
+
+                    const nodeContainers = treeWrapper.querySelectorAll('.node-container');
+                    nodeContainers.forEach(container => {
+                        const labelsStack = container.querySelector(':scope > .labels-stack');
+                        if (!labelsStack) return;
+                        
+                        const labelRows = labelsStack.querySelectorAll(':scope > .label-row');
+                        let anyLabelHasValue = false;
+
+                        labelRows.forEach(row => {
+                            const labelWraps = row.querySelectorAll('.label-wrap');
+                            const elements = row.querySelectorAll('.label-input, .label-display');
+                            const combinedVal = Array.from(elements).map(el => getLabelValue(el)).filter(v => v && v !== 'label').join(' ');
+
+                            const span = document.createElement('span');
+                            if (!combinedVal) {
+                                span.style.display = 'none';
+                                row.style.display = 'none';
+                            } else {
+                                anyLabelHasValue = true;
+                                span.className = 'exp-label';
+                                span.style.cssText = `display: inline-block; min-width: 140px; text-align: center; font-size: 11px; font-family: Arial, sans-serif; padding: 4px; border: 1px solid var(--label-border-filled); border-radius: 4px; background-color: var(--label-bg-filled); color: var(--label-text);`;
+                                applyFormatToSpan(span, combinedVal);
+                            }
+
+                            labelWraps.forEach(lw => lw.style.display = 'none');
+                            inputData.push({ type: 'label', labelWraps, span, row, parent: row });
+                            row.insertBefore(span, row.firstChild);
+                        });
+
+                        if (!anyLabelHasValue) {
+                            labelsStack.dataset.wasHidden = 'true';
+                            labelsStack.style.display = 'none';
+                        }
+                    });
+
+                    const canvas = await html2canvas(treeWrapper, {
+                        backgroundColor: null,
+                        scale: 2,
+                        width: treeWrapper.scrollWidth,
+                        height: treeWrapper.scrollHeight
+                    });
+
+                    const link = document.createElement('a');
+                    link.download = getFileName('png');
+                    link.href = canvas.toDataURL();
+                    link.click();
+
+                    treeContainer.style.overflow = originalOverflow;
+                    treeContainer.style.width = originalWidth;
+                    treeContainer.style.maxWidth = originalMaxWidth;
+
+                    inputData.forEach(d => {
+                        d.span.remove();
+                        d.labelWraps.forEach(lw => lw.style.display = '');
+                        if (d.row) d.row.style.display = '';
+                    });
+
+                    treeWrapper.querySelectorAll('.labels-stack[data-was-hidden]').forEach(stack => {
+                        stack.style.display = '';
+                        delete stack.dataset.wasHidden;
+                    });
+
+                    originalInlineStyles.connectors.forEach(({ el, cssText }) => { el.style.cssText = cssText; });
+                    originalInlineStyles.nodeBoxes.forEach(({ el, cssText }) => { el.style.cssText = cssText; });
+
+                    undoBtns.forEach(b => b.style.visibility = 'visible');
+                    clearBtns.forEach(b => b.style.display = '');
+                    addBtns.forEach(b => b.style.display = '');
+                    labelAddBtns.forEach(b => b.style.display = '');
+                    labelRemoveBtns.forEach(b => b.style.display = '');
+                    editBtns.forEach(b => b.style.display = '');
+
+                } finally {
+                    setZoomLevel(savedZoom);
+                }
+            };
+
+            // ===========================================
+            // RENDERIZADO DE ETIQUETAS (MULTI-FILA)
+            // ===========================================
+            const renderSingleLabel = (node, labelIndex) => {
+                const value = node.labels[labelIndex] || '';
+                const hasValue = value.trim() !== '';
+                const labelKey = `${node.id}-label-${labelIndex}`;
+                const isEditing = editingLabel === labelKey;
+                const baseClass = `label-input ${hasValue ? 'has-value' : ''}`;
+
+                const setValue = (newVal) => updateLabel(node.id, labelIndex, newVal);
+                const startEditing = () => setEditingLabel(labelKey);
+                
+                const handleBlur = () => {
+                    setTimeout(() => {
+                        setEditingLabel(prev => prev === labelKey ? null : prev);
+                    }, 200);
+                };
+
+                // Nueva lógica para Enter, Tab y Shift+Tab
+                const handleKeyDown = (e) => { 
+                    if (e.key === 'Enter') { 
+                        e.preventDefault(); 
+                        setEditingLabel(null); 
+                    } else if (e.key === 'Tab') {
+                        e.preventDefault(); // Evita el comportamiento por defecto del navegador
+                        
+                        // 1. Aplanamos el árbol para conocer el orden lógico (de izquierda a derecha)
+                        const flatNodes = [];
+                        const flatten = (n) => {
+                            if (!n) return;
+                            flatNodes.push(n);
+                            if (n.children) n.children.forEach(flatten);
+                        };
+                        flatten(tree);
+                        
+                        const currentNodeIdx = flatNodes.findIndex(n => n.id === node.id);
+                        
+                        if (e.shiftKey) {
+                            // NAVEGACIÓN HACIA ATRÁS (Shift + Tab)
+                            if (labelIndex > 0) {
+                                // Subir a la etiqueta anterior del mismo nodo
+                                setEditingLabel(`${node.id}-label-${labelIndex - 1}`);
+                            } else if (currentNodeIdx > 0) {
+                                // Ir a la última etiqueta del nodo anterior
+                                const prevNode = flatNodes[currentNodeIdx - 1];
+                                setEditingLabel(`${prevNode.id}-label-${prevNode.labels.length - 1}`);
+                            }
+                        } else {
+                            // NAVEGACIÓN HACIA ADELANTE (Tab)
+                            if (labelIndex + 1 < node.labels.length) {
+                                // Bajar a la siguiente etiqueta del mismo nodo
+                                setEditingLabel(`${node.id}-label-${labelIndex + 1}`);
+                            } else if (currentNodeIdx + 1 < flatNodes.length) {
+                                // Ir a la primera etiqueta del nodo siguiente a la derecha
+                                const nextNode = flatNodes[currentNodeIdx + 1];
+                                setEditingLabel(`${nextNode.id}-label-0`);
+                            } else {
+                                // Si es el último nodo y la última etiqueta, salimos de la edición
+                                setEditingLabel(null);
+                            }
+                        }
+                    }
+                };
+
+                if (isEditing) {
+                    return (
+                        <div className="label-wrap">
+                            <input 
+                                type="text" 
+                                value={value} 
+                                onChange={(e) => setValue(e.target.value)} 
+                                onBlur={handleBlur} 
+                                onKeyDown={handleKeyDown} 
+                                autoFocus 
+                                className={baseClass} 
+                                style={{ width: '140px' }} 
+                                placeholder="label" 
+                            />
+                        </div>
+                    );
+                }
+
+                const displayClass = `label-display ${hasValue ? 'has-value' : ''}`;
+                return (
+                    <div className="label-wrap">
+                        <span 
+                            className={displayClass} 
+                            style={{ width: '140px', minWidth: '140px' }} 
+                            onClick={startEditing} 
+                            data-raw-value={value || ''}
+                        >
+                            {hasValue ? formatLabelText(value) : <span style={{color: '#9ca3af'}}>label</span>}
+                        </span>
+                    </div>
+                );
+            };
+
+            const renderLabelsStack = (node) => {
+                const labels = node.labels || [''];
+                return (
+                    <div className="labels-stack">
+                        {labels.map((label, idx) => (
+                            <div key={idx} className="label-row">
+                                {renderSingleLabel(node, idx)}
+                                {labels.length > 1 && (
+                                    <button className="label-remove-btn" onClick={(e) => { e.stopPropagation(); removeLabelRow(node.id, idx); }} title="Remove this label row">×</button>
+                                )}
+                            </div>
+                        ))}
+                        {labels.length < 5 && (
+                            <button className="label-add-btn" onClick={(e) => { e.stopPropagation(); addLabelRow(node.id); }} title="Add label row">+</button>
+                        )}
+                    </div>
+                );
+            };
+
+            // ===========================================
+            // RENDERIZADO DE NODOS
+            // ===========================================
+            const renderNode = (node) => {
+                const isRoot = node.id === 'root';
+                const isDiv = divisionMode === node.id;
+                const hasC = node.children && node.children.length > 0;
+                const isEmpty = !node.text || node.text.trim() === '';
+                const words = node.text ? node.text.split(/\s+/) : [];
+                const canDivide = words.length > 1 && !node.isInserted && !node.isConsolidated;
+                const canConsolidate = words.length > 1 && !node.isInserted && !hasC;
+                const isTerminal = !hasC;
+                const isEditingText = editingNode === node.id;
+
+                return (
+                    <div className="node-container" key={node.id}>
+                        {/* Upper labels: non-root nodes only */}
+                        {!isRoot && renderLabelsStack(node)}
+
+                        {isEmpty ? (
+                            isRoot ? null : <div className="connector-v" style={{ height: '36px' }} />
+                        ) : (
+                            <>
+                                {/* Top connector: not drawn on root node */}
+                                {!isRoot && <div className="connector-v" style={{ height: '12px' }} />}
+
+                                {isDiv ? (
+                                    <div style={{background:'#f8fafc', padding:'15px', border:'1px solid #374151', borderRadius:'4px'}}>
+                                        <div style={{display:'flex', gap:'4px', marginBottom:'10px'}}>
+                                            {words.map((w, i) => (
+                                                <React.Fragment key={i}>
+                                                    <span style={{padding:'6px 10px', background:'white', border:'1px solid #cbd5e1'}}>{w}</span>
+                                                    {i < words.length - 1 && (
+                                                        <button
+                                                            onClick={() => setSelectedCuts(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i].sort((a,b) => a-b))}
+                                                            style={{width:'10px', background: selectedCuts.includes(i) ? '#000000' : '#e2e8f0', border:'none', cursor:'pointer'}}
+                                                        />
+                                                    )}
+                                                </React.Fragment>
+                                            ))}
+                                        </div>
+                                        <div style={{display:'flex', gap:'8px', justifyContent:'center'}}>
+                                            <button onClick={handleDivide} className="btn btn-primary" style={{padding:'5px 12px'}}>Divide</button>
+                                            <button onClick={() => setDivisionMode(null)} className="btn btn-outline" style={{padding:'5px 12px'}}>Cancel</button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="node-box-row">
+                                        <div className={`node-box ${(canDivide && !isEditingText) ? 'can-divide' : ''}`} onClick={() => !hasC && canDivide && !isEditingText && setDivisionMode(node.id)}>
+                                            {isEditingText ? (
+                                                <input
+                                                    type="text"
+                                                    value={node.text}
+                                                    onChange={(e) => setTree(prev => updateNode(prev, node.id, { text: e.target.value }))}
+                                                    onBlur={() => setEditingNode(null)}
+                                                    onKeyDown={(e) => { if (e.key === 'Enter') setEditingNode(null); }}
+                                                    autoFocus
+                                                    style={{
+                                                        textAlign: 'center', border: '1px dashed var(--accent)', borderRadius: '4px',
+                                                        padding: '2px 4px', fontFamily: 'inherit', fontSize: '16px', color: 'var(--ink)',
+                                                        background: 'var(--cream)', outline: 'none', width: `${Math.max(node.text?.length || 1, 3)}ch`, minWidth: '40px'
+                                                    }}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                />
+                                            ) : (
+                                                node.text
+                                            )}
+
+                                            {canConsolidate && !isEditingText && (
+                                                <button className="consolidate-btn" title={node.isConsolidated ? "Allow division" : "Consolidate"} onClick={(e) => { e.stopPropagation(); toggleConsolidated(node.id); }}>
+                                                    {node.isConsolidated ? '÷' : '∪'}
+                                                </button>
+                                            )}
+                                            {hasC && !node.isInserted && !isEditingText && (
+                                                <button className="add-node-btn" title="Add child node" onClick={(e) => { e.stopPropagation(); addChildNode(node.id); }}>+</button>
+                                            )}
+                                            {!isEditingText && (
+                                                <button className="clear-text-btn" title="Clear text" onClick={(e) => { e.stopPropagation(); setTree(prev => updateNode(prev, node.id, { text: '' })); }}>✕</button>
+                                            )}
+                                            {!isEditingText && (
+                                                <button className="edit-text-btn" title="Edit text" onClick={(e) => { e.stopPropagation(); setEditingNode(node.id); }}>✎</button>
+                                            )}
+                                        </div>
+                                        {hasC && (
+                                            <button className="btn-danger-soft node-revert-btn" onClick={(e) => { e.stopPropagation(); setTree(prev => updateNode(prev, node.id, { children: null })); }} title="Undo division">↩</button>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Bottom connector: only if node has children */}
+                                {!isTerminal && <div className="connector-v" style={{ height: '12px' }} />}
+                            </>
+                        )}
+
+                        {/* Lower labels: root node only */}
+                        {isRoot && renderLabelsStack(node)}
+
+                        {hasC && (
+                            <div style={{display:'flex', flexDirection:'column', alignItems:'center', width:'100%'}}>
+                                <div className="connector-v" style={{height:'24px'}} />
+                                <div className="children-container">
+                                    {node.children.map((c) => (
+                                        <div className="child-branch" key={c.id}>
+                                            <div className="v-line-stem" />
+                                            {renderNode(c)}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                );
+            };
+
+            // ===========================================
+            // MAIN VIEW — PANEL + CANVAS LAYOUT
+            // ===========================================
+            const [guideOpen, setGuideOpen] = useState(false);
+            const [showNewDiagram, setShowNewDiagram] = useState(false);
+            const [newDiagramText, setNewDiagramText] = useState('');
+            
+            // Estados y referencias para el panel IPA
+            const [showIPA, setShowIPA] = useState(false);
+            const newDiagramInputRef = useRef(null);
+
+            const insertIPAChar = (char) => {
+                const input = newDiagramInputRef.current;
+                if (!input) return;
+                const start = input.selectionStart;
+                const end = input.selectionEnd;
+                const newVal = newDiagramText.substring(0, start) + char + newDiagramText.substring(end);
+                setNewDiagramText(newVal);
+                // Retornar el foco al input después de insertar el caracter
+                setTimeout(() => {
+                    input.focus();
+                    const pos = start + char.length;
+                    input.setSelectionRange(pos, pos);
+                }, 0);
+            };
+
+            const handleNewDiagram = () => {
+                setNewDiagramText('');
+                setShowIPA(false); // Reseteamos el panel al abrir
+                setShowNewDiagram(true);
+            };
+
+            const handleNewDiagramConfirm = () => {
+                if (!newDiagramText.trim()) return;
+                setSentence(newDiagramText.trim());
+                setShowNewDiagram(false);
+                setNewDiagramText('');
+                startAnalysis(newDiagramText.trim());
+            };
+
+            return (
+                <div className="app-layout">
+                    {/* LEFT PANEL */}
+                    <div className="side-panel">
+                        {/* LOGO */}
+                        <div style={{ textAlign: 'center', paddingBottom: '12px', borderBottom: '1px solid var(--rule)' }}>
+                            <img src="mak.png" alt="M.A.K. Logo" style={{ maxWidth: '100%', height: 'auto', display: 'block', margin: '0 auto' }} />
+                        </div>
+
+                        {/* NEW DIAGRAM */}
+                        <div>
+                            <button className="panel-btn primary" onClick={handleNewDiagram} style={{width:'100%'}}>
+                                <span className="panel-tool-icon">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>
+                                </span> 
+                                New Diagram
+                            </button>
+                        </div>
+
+                        {/* FILES */}
+                        <div>
+                            <div className="panel-section-title">Files</div>
+                            <div className="panel-tools">
+                                <button className="panel-tool-btn" onClick={handleSaveJSON} disabled={!tree}>
+                                    <span className="panel-tool-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></span> Save
+                                </button>
+                                <button className="panel-tool-btn" onClick={() => fileInputRef.current.click()}>
+                                    <span className="panel-tool-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg></span> Load
+                                </button>
+                                <button className="panel-tool-btn" onClick={handleExport} disabled={!tree}>
+                                    <span className="panel-tool-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></span> Export as PNG
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* HISTORY */}
+                        <div>
+                            <div className="panel-section-title">History</div>
+                            <div className="panel-tools">
+                                <button className="panel-tool-btn" onClick={handleUndo} disabled={!canUndo}>
+                                    <span className="panel-tool-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6"></path><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path></svg></span> Undo
+                                </button>
+                                <button className="panel-tool-btn" onClick={handleRedo} disabled={!canRedo}>
+                                    <span className="panel-tool-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 7v6h-6"></path><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 3.7"></path></svg></span> Redo
+                                </button>
+                            </div>
+                        </div>
+                        
+                        {/* ZOOM */}
+                        <div>
+                            <div className="panel-section-title">Zoom</div>
+                            <div className="panel-zoom-controls">
+                                <button className="zoom-btn" onClick={zoomOut} disabled={zoomLevel <= ZOOM_MIN} title="Zoom out">−</button>
+                                <div className="zoom-indicator" onClick={zoomReset} title="Reset zoom">{zoomLevel}%</div>
+                                <button className="zoom-btn" onClick={zoomIn} disabled={zoomLevel >= ZOOM_MAX} title="Zoom in">+</button>
+                            </div>
+                        </div>
+
+                        {/* QUICK GUIDE */}
+                        <div>
+                            <button className="panel-guide-toggle" onClick={() => setGuideOpen(!guideOpen)}>
+                                <span className="panel-tool-icon">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                                </span>
+                                Quick guide {guideOpen ? '▾' : '▸'}
+                            </button>
+                            <div className={`panel-guide-content ${guideOpen ? 'open' : ''}`}>
+                                <div className="panel-guide-inner">
+                                    <div className="guide-section">
+                                        <div className="guide-section-title">Constituents & Nodes</div>
+                                        <ul>
+                                            <li>Click on a node to enter <strong>division mode</strong>. Click the spaces between words to mark your exact cuts, then press "Divide".</li>
+                                            <li>Click <code>✎</code> (bottom right) to edit the text of any node directly.</li>
+                                            <li>Click <code>∪</code> (top left) to consolidate a node (preventing further division) and <code>÷</code> to allow it again.</li>
+                                            <li>Click <code>+</code> (bottom center) to manually add an extra child node.</li>
+                                            <li>Click <code>↩</code> (right side) to undo a division, and <code>✕</code> (top right) to clear a node's text.</li>
+                                        </ul>
+                                    </div>
+                                    <div className="guide-section">
+                                        <div className="guide-section-title">Labels</div>
+                                        <ul>
+                                            <li>The root node displays its labels <strong>below</strong> the text, while all child nodes display them <strong>above</strong>.</li>
+                                            <li>Hover over a label stack and click <code>+</code> to add up to 5 rows for simultaneous analysis.</li>
+                                            <li>Click the <code>×</code> button next to any row to remove it.</li>
+                                            <li>Press <code>Tab</code> while editing to move to the next label or the next constituent. Use <code>Shift + Tab</code> to go back.</li>
+                                        </ul>
+                                    </div>
+                                    <div className="guide-section">
+                                        <div className="guide-section-title">Text Formatting</div>
+                                        <ul>
+                                            <li><code>**text**</code> for <strong>bold</strong></li>
+                                            <li><code>*text*</code> for <em>italic</em></li>
+                                            <li><code>_text_</code> for <sub>subscript</sub></li>
+                                            <li><code>__text__</code> for <sup>superscript</sup></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="panel-spacer"></div>
+
+                        {(isSaving || lastSaved) && (
+                            <div className="panel-autosave">
+                                <span className={`panel-autosave-dot ${isSaving ? 'saving' : ''}`}></span>
+                                {isSaving ? (
+                                    <>Saving<span className="autosave-ellipsis"><span>.</span><span>.</span><span>.</span></span></>
+                                ) : (lastSaved ? `Saved ${formatTimeAgo(lastSaved)}` : '')}
+                            </div>
+                        )}
+
+                        {/* INPUT FILE OCULTO (Necesario para el Load) */}
+                        <input type="file" ref={fileInputRef} style={{display:'none'}} accept=".mak,.ent,.json,application/json,text/plain,*/*" onChange={handleLoadJSON} />
+
+                        <footer className="footer">
+                            <p>Carlos González Vergara<br/><strong><a href="mailto:cgonzalv@uc.cl">cgonzalv@uc.cl</a></strong></p>
+                            <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">
+                                <img src="https://mirrors.creativecommons.org/presskit/buttons/88x31/svg/by-nc-nd.svg" alt="CC BY-NC-ND 4.0" />
+                            </a>
+                        </footer>
+                    </div>
+
+                    {/* CANVAS */}
+                    <div className="canvas-area">
+                        <div className="tree-container" ref={treeContainerRef}>
+                            {tree ? (
+                                <div className="zoom-container" ref={zoomContainerRef} style={{ zoom: zoomLevel / 100, '--mak-text-scale': textScale }}>
+                                    <div className="tree-wrapper">{renderNode(tree)}</div>
+                                </div>
+                            ) : (
+                                <div className="canvas-placeholder">
+                                    <p>Press <strong>✦ New Diagram</strong> to begin</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* NEW DIAGRAM MODAL */}
+                    {showNewDiagram && (
+                        <div className="pos-overlay" onClick={() => setShowNewDiagram(false)}>
+                            <div className="new-diagram-modal" onClick={(e) => e.stopPropagation()}>
+                                <h4 className="new-diagram-title">New Diagram</h4>
+                                <p className="new-diagram-sub">Type the expression you want to analyse.</p>
+                                
+                                <div style={{ display: 'flex', gap: '8px', marginBottom: showIPA ? '8px' : '14px' }}>
+                                    <input
+                                        ref={newDiagramInputRef}
+                                        className="new-diagram-input"
+                                        style={{ marginBottom: 0 }}
+                                        type="text"
+                                        value={newDiagramText}
+                                        onChange={(e) => setNewDiagramText(e.target.value)}
+                                        onKeyPress={(e) => e.key === 'Enter' && handleNewDiagramConfirm()}
+                                        placeholder="e.g. The cat sat on the mat"
+                                        autoFocus
+                                    />
+                                    <button 
+                                        type="button" 
+                                        className={`ipa-toggle-btn ${showIPA ? 'active' : ''}`} 
+                                        onClick={() => setShowIPA(prev => !prev)} 
+                                        title="IPA character picker"
+                                    >
+                                        <span style={{fontSize: '14px', lineHeight: 1}}>t͡ʃ</span> IPA
+                                    </button>
+                                </div>
+
+                                {showIPA && (
+                                    <div className="ipa-panel">
+                                        {IPA_CATEGORIES.map((cat) => (
+                                            <div key={cat.title}>
+                                                <div className="ipa-category-title">{cat.title}</div>
+                                                <div className="ipa-grid">
+                                                    {cat.chars.map((ch, j) => (
+                                                        <button key={j} type="button" className="ipa-char-btn" onClick={() => insertIPAChar(ch)} title={ch}>{ch}</button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <div className="new-diagram-actions">
+                                    <button className="btn btn-outline" onClick={() => setShowNewDiagram(false)}>Cancel</button>
+                                    <button className="btn btn-primary" onClick={handleNewDiagramConfirm} disabled={!newDiagramText.trim()}>Analyse</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* POSITION PICKER */}
+                    {posPicker && (
+                        <div className="pos-overlay" onClick={() => setPosPicker(null)}>
+                            <div className="pos-modal" onClick={(e) => e.stopPropagation()}>
+                                <h4 className="pos-title">Where should the new constituent go?</h4>
+                                <p className="pos-sub">Choose the position to insert it among the current constituents.</p>
+                                <div className="pos-row">
+                                    <select className="pos-select" value={posPicker.pos} onChange={(e) => setPosPicker(pp => ({ ...pp, pos: parseInt(e.target.value, 10) }))}>
+                                        {Array.from({ length: posPicker.siblings.length + 1 }, (_, idx) => {
+                                            const i = idx + 1;
+                                            return <option key={i} value={i}>{buildPosLabel(i, posPicker.siblings)}</option>;
+                                        })}
+                                    </select>
+                                </div>
+                                <div className="pos-actions">
+                                    <button className="btn btn-outline" onClick={() => setPosPicker(null)}>Cancel</button>
+                                    <button className="btn btn-primary" onClick={confirmInsertAtPosition}>Insert</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById("root"));
+        root.render(<SyntaxTreeBuilder />);
+    </script>
+</body>
+</html>
