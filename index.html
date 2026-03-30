@@ -459,6 +459,15 @@
             position: relative;
             padding-bottom: 0;
         }
+
+        .label-connector-v {
+            width: 1.5px;
+            height: 6px;
+            background-color: var(--ink-muted);
+            margin: 0 auto;
+            flex-shrink: 0;
+        }
+
         .label-row {
             position: relative;
             display: inline-flex;
@@ -1546,12 +1555,15 @@
                 return (
                     <div className="labels-stack">
                         {labels.map((label, idx) => (
-                            <div key={idx} className="label-row">
-                                {renderSingleLabel(node, idx)}
-                                {labels.length > 1 && (
-                                    <button className="label-remove-btn" onClick={(e) => { e.stopPropagation(); removeLabelRow(node.id, idx); }} title="Remove this label row">×</button>
-                                )}
-                            </div>
+                            <React.Fragment key={idx}>
+                                {idx > 0 && <div className="label-connector-v" />}
+                                <div className="label-row">
+                                    {renderSingleLabel(node, idx)}
+                                    {labels.length > 1 && (
+                                        <button className="label-remove-btn" onClick={(e) => { e.stopPropagation(); removeLabelRow(node.id, idx); }} title="Remove this label row">×</button>
+                                    )}
+                                </div>
+                            </React.Fragment>
                         ))}
                         {labels.length < 5 && (
                             <button className="label-add-btn" onClick={(e) => { e.stopPropagation(); addLabelRow(node.id); }} title="Add label row">+</button>
@@ -1835,7 +1847,7 @@
                         <input type="file" ref={fileInputRef} style={{display:'none'}} accept=".mak,.ent,.json,application/json,text/plain,*/*" onChange={handleLoadJSON} />
 
                         <footer className="footer">
-                            <p>Carlos González Vergara (<strong><a href="mailto:cgonzalv@uc.cl">cgonzalv@uc.cl</a></strong>)</p>
+                            <p>Carlos González Vergara<br/><strong><a href="mailto:cgonzalv@uc.cl">cgonzalv@uc.cl</a></strong></p>
                             <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">
                                 <img src="https://mirrors.creativecommons.org/presskit/buttons/88x31/svg/by-nc-nd.svg" alt="CC BY-NC-ND 4.0" />
                             </a>
