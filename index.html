@@ -1731,6 +1731,12 @@
                                 </span> 
                                 New Diagram
                             </button>
+                            <button className="panel-btn" onClick={() => window.open('manual.html', '_blank')} style={{width:'100%', marginTop: '6px'}}>
+                                <span className="panel-tool-icon">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>
+                                </span>
+                                Manual
+                            </button>
                         </div>
 
                         {/* FILES */}
@@ -1829,7 +1835,7 @@
                         <input type="file" ref={fileInputRef} style={{display:'none'}} accept=".mak,.ent,.json,application/json,text/plain,*/*" onChange={handleLoadJSON} />
 
                         <footer className="footer">
-                            <p>Carlos González Vergara<br/><strong><a href="mailto:cgonzalv@uc.cl">cgonzalv@uc.cl</a></strong></p>
+                            <p>Carlos González Vergara (<strong><a href="mailto:cgonzalv@uc.cl">cgonzalv@uc.cl</a></strong>)</p>
                             <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">
                                 <img src="https://mirrors.creativecommons.org/presskit/buttons/88x31/svg/by-nc-nd.svg" alt="CC BY-NC-ND 4.0" />
                             </a>

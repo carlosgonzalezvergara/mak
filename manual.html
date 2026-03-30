@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>User Manual — M.A.K.</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap');
+
+        :root {
+            --ink: #2C2420;
+            --ink-light: #5C534D;
+            --ink-muted: #8C837B;
+            --parchment: #FAF6F1;
+            --parchment-deep: #F3EDE4;
+            --cream: #FFFDF9;
+            --rule: #D4C9BC;
+            --rule-light: #E8E0D6;
+            --accent: #8B3A3A;
+            --accent-light: #A85050;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Libre Baskerville', 'Charter', Cambria, serif;
+            line-height: 1.75;
+            color: var(--ink);
+            background-color: var(--cream);
+        }
+
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 80px 50px;
+        }
+
+        /* ─── Header ─── */
+        header {
+            border-bottom: 2px solid var(--ink);
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            text-align: center;
+        }
+
+        header .logo-img {
+            max-width: 280px;
+            height: auto;
+            margin: 0 auto 16px;
+            display: block;
+        }
+
+        h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.6rem;
+            margin: 0;
+            color: var(--ink);
+            line-height: 1.1;
+            letter-spacing: 0.06em;
+        }
+
+        .subtitle {
+            font-family: 'Source Sans 3', sans-serif;
+            margin-top: 10px;
+            font-size: 1.15rem;
+            color: var(--ink-muted);
+            font-weight: 400;
+            letter-spacing: 0.02em;
+        }
+
+        .author-info {
+            font-family: 'Source Sans 3', sans-serif;
+            margin-top: 14px;
+            font-size: 0.95rem;
+            color: var(--ink-light);
+        }
+        .author-info a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .author-info a:hover { text-decoration: underline; }
+
+        /* ─── Table of Contents ─── */
+        nav.toc {
+            background: var(--parchment);
+            padding: 28px 30px;
+            border-radius: 10px;
+            margin-bottom: 60px;
+            font-family: 'Source Sans 3', sans-serif;
+            border: 1px solid var(--rule);
+        }
+
+        nav.toc strong {
+            display: block;
+            margin-bottom: 14px;
+            font-size: 1.05rem;
+            color: var(--ink);
+        }
+        nav.toc ul { list-style: none; padding: 0; margin: 0; column-count: 2; }
+        nav.toc li { margin-bottom: 9px; }
+        nav.toc a { color: var(--accent); text-decoration: none; font-weight: 500; }
+        nav.toc a:hover { text-decoration: underline; }
+
+        /* ─── Sections ─── */
+        section { margin-bottom: 65px; scroll-margin-top: 20px; }
+
+        h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.7rem;
+            border-bottom: 1px solid var(--rule);
+            padding-bottom: 10px;
+            margin-top: 60px;
+            color: var(--ink);
+        }
+
+        h3 {
+            font-family: 'Source Sans 3', sans-serif;
+            margin-top: 36px;
+            color: var(--accent);
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        p { margin-bottom: 18px; }
+
+        ul, ol { margin-bottom: 18px; padding-left: 24px; }
+        li { margin-bottom: 8px; }
+
+        .ui-element {
+            display: inline-block;
+            background: var(--cream);
+            border: 1px solid var(--rule);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .example-card {
+            border-left: 4px solid var(--accent);
+            background: var(--parchment);
+            padding: 22px 25px;
+            margin: 28px 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.95rem;
+        }
+        .example-card p:last-child { margin-bottom: 0; }
+
+        .note-block {
+            background-color: #FDF8ED;
+            border: 1px solid #EDE4CC;
+            color: #6B5B2E;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 28px 0;
+            font-size: 0.93rem;
+        }
+        .note-block p:last-child { margin-bottom: 0; }
+        .note-block strong { color: #4A3E1E; }
+
+        code {
+            background: var(--parchment-deep);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'SF Mono', Consolas, 'Liberation Mono', monospace;
+            font-size: 0.88em;
+            color: var(--ink);
+            border: 1px solid var(--rule-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 28px 0;
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 0.93rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 13px 15px;
+            border: 1px solid var(--rule);
+        }
+
+        th { background-color: var(--parchment-deep); font-weight: 700; color: var(--ink); }
+
+        .key-tip {
+            background: var(--cream);
+            border: 1px solid var(--rule);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-weight: bold;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.08);
+        }
+
+        /* ─── Footer ─── */
+        footer {
+            margin-top: 80px;
+            padding-top: 30px;
+            border-top: 1px solid var(--rule);
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 0.93rem;
+            text-align: center;
+            color: var(--ink-muted);
+        }
+
+        footer p { margin: 5px 0; color: var(--ink-light); }
+        footer strong { color: var(--ink); }
+        footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+        footer a:hover { text-decoration: underline; }
+        .footer-copyright { margin-top: 18px !important; font-size: 0.83rem; color: var(--ink-muted) !important; }
+        footer img { display: block; margin: 12px auto 0; height: 24px; opacity: 0.7; }
+        footer img:hover { opacity: 1; }
+
+        @media (max-width: 600px) {
+            .container { padding: 40px 20px; }
+            nav.toc ul { column-count: 1; }
+            h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>M.A.K.</h1>
+        <p class="subtitle">User Manual &amp; Technical Reference</p>
+    </header>
+
+    <nav class="toc">
+        <strong>Table of Contents</strong>
+        <ul>
+            <li><a href="#overview">1. Overview</a></li>
+            <li><a href="#interface">2. The interface</a></li>
+            <li><a href="#new-diagram">3. Creating a new diagram</a></li>
+            <li><a href="#division">4. Division mechanics</a></li>
+            <li><a href="#labels">5. The label system</a></li>
+            <li><a href="#extra-nodes">6. Extra nodes and elision</a></li>
+            <li><a href="#editing">7. Editing node text</a></li>
+            <li><a href="#files">8. File management</a></li>
+            <li><a href="#export">9. Exporting as PNG</a></li>
+            <li><a href="#shortcuts">10. Keyboard shortcuts</a></li>
+        </ul>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <section id="overview">
+        <h2>1. Overview</h2>
+        <p>
+            <strong>M.A.K.</strong> is a browser-based diagramming tool designed for syntactic analysis within the framework of <strong>Systemic Functional Linguistics</strong> (SFL). It allows users to build constituency tree diagrams interactively, assigning multiple rows of labels per node to reflect the simultaneous functional layers characteristic of SFL analysis.
+        </p>
+        <p>
+            M.A.K. is a manual assistant: the user makes all analytical decisions (choosing where to divide constituents, what labels to assign, and how to organise the tree) while the program handles hierarchical visualisation, label management, and image export.
+        </p>
+        <p>
+            The tool runs entirely in the browser. No data is uploaded to any server; all work is stored locally in the browser or saved as downloadable files.
+        </p>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <section id="interface">
+        <h2>2. The interface</h2>
+        <p>
+            M.A.K. uses a <strong>split layout</strong> with two areas:
+        </p>
+        <ul>
+            <li><strong>Left panel</strong> — a narrow sidebar containing the logo, the <span class="ui-element">✦ New Diagram</span> button, file operations (Save, Load, Export), history controls (Undo, Redo), zoom controls, and a collapsible quick-reference guide.</li>
+            <li><strong>Canvas</strong> — the main area where the tree diagram is displayed and edited. When no diagram is active, the canvas shows a placeholder message.</li>
+        </ul>
+
+        <h3>Zoom</h3>
+        <p>
+            The zoom controls are located in the left panel under the <em>Zoom</em> section. Use <code>[−]</code> and <code>[+]</code> to adjust the view, or click the percentage indicator to reset to 100%. The zoom range is 40%–200% in 20% increments.
+        </p>
+
+        <h3>Auto-save</h3>
+        <p>
+            M.A.K. automatically saves your work to the browser's local storage every few seconds. If you close the tab or browser and return later, M.A.K. will offer to restore your last session. This auto-save is stored locally only — nothing is uploaded.
+        </p>
+        <div class="note-block">
+            <strong>Note:</strong> Auto-saved data may be lost if you clear your browser's site data. For permanent storage, use the <strong>Save</strong> function to download a <code>.mak</code> file.
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <section id="new-diagram">
+        <h2>3. Creating a new diagram</h2>
+        <ol>
+            <li>Click <span class="ui-element">✦ New Diagram</span> in the left panel.</li>
+            <li>A dialog box appears. Type the expression you want to analyse in the text field.</li>
+            <li>If you need <strong>IPA characters</strong>, click the <span class="ui-element">t͡ʃ IPA</span> button to open the IPA character picker. Characters are inserted at the cursor position in the text field.</li>
+            <li>Click <span class="ui-element">Analyse</span> (or press <strong>Enter</strong>). The root node is created with the full expression.</li>
+        </ol>
+        <p>
+            From that point, your work consists of dividing constituents, assigning labels, and — when necessary — adding extra nodes or editing node text.
+        </p>
+
+        <h3>The IPA character picker</h3>
+        <p>
+            The picker is organised into categories: vowels, plosives, nasals, fricatives, approximants, affricates, clicks, suprasegmentals, diacritics (voicing, place, manner, secondary), tones, and bracketing symbols. Click any character to insert it into the expression field. The picker closes when you dismiss the dialog or toggle it off.
+        </p>
+
+        <h3>Undo and redo</h3>
+        <p>
+            M.A.K. maintains a history of up to 50 states. Use the <strong>Undo</strong> and <strong>Redo</strong> buttons in the left panel, or the keyboard shortcuts (see <a href="#shortcuts">section 10</a>), to step back and forth through your editing history.
+        </p>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <section id="division">
+        <h2>4. Division mechanics</h2>
+
+        <h3>Dividing a node</h3>
+        <p>
+            To divide a constituent into smaller parts, click on a <strong>tinted node box</strong> (the node must contain more than one word). M.A.K. enters <em>division mode</em> and displays the words with clickable cut bars between them.
+        </p>
+        <ul>
+            <li>Click one or more <strong>grey bars</strong> between words to mark the boundaries between constituents. Selected bars turn dark.</li>
+            <li>Click <span class="ui-element">Divide</span> to generate the child nodes.</li>
+            <li>Click <span class="ui-element">Cancel</span> to exit division mode without making changes.</li>
+        </ul>
+
+        <h3>Consolidating a node</h3>
+        <p>
+            If a node contains more than one orthographic word but should be treated as a single syntactic unit (e.g. a phrasal verb or a proper name), you can <strong>consolidate</strong> it to prevent division. Hover over the node and click the <span class="ui-element">∪</span> button in the upper-left corner. The node will no longer be divisible. To reverse this, click the <span class="ui-element">÷</span> button that replaces it.
+        </p>
+
+        <h3>Undoing a division</h3>
+        <p>
+            If a node has been divided into children and you want to reverse that, hover over it and click the <span class="ui-element">↩</span> button on the right side of the node box. This removes all children and restores the node to its undivided state.
+        </p>
+
+        <h3>Clearing node text</h3>
+        <p>
+            You can remove a node's text while keeping its labels and children intact. Hover over the node and click the <span class="ui-element">✕</span> button in the upper-right corner. This is available on every node, including the root.
+        </p>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <section id="labels">
+        <h2>5. The label system</h2>
+
+        <p>
+            M.A.K.'s label system is designed for SFL analysis, where a single constituent may need to be labelled simultaneously in several functional layers (e.g. transitivity, mood, theme).
+        </p>
+
+        <h3>Label placement</h3>
+        <ul>
+            <li>The <strong>root node</strong> displays its labels <strong>below</strong> the text box.</li>
+            <li>All <strong>other nodes</strong> display their labels <strong>above</strong> the text box.</li>
+        </ul>
+
+        <h3>Multiple label rows</h3>
+        <p>
+            Each node supports between <strong>1 and 5 rows</strong> of labels. Non-root nodes are created with 2 rows by default; the root node starts with 1.
+        </p>
+        <ul>
+            <li>Hover over a label stack and click the <span class="ui-element">+</span> button to add a new row (up to 5).</li>
+            <li>Click the <span class="ui-element">×</span> button next to any row to remove it (minimum 1 row).</li>
+        </ul>
+
+        <h3>Editing labels</h3>
+        <p>
+            Click on any label to enter edit mode. Type the desired value and press <strong>Enter</strong> or click elsewhere to confirm. You can use <strong>Tab</strong> to advance to the next label and <strong>Shift+Tab</strong> to go back.
+        </p>
+
+        <h3>Formatting within labels</h3>
+        <p>
+            Labels support inline text formatting using simple markup:
+        </p>
+        <table>
+            <thead>
+                <tr><th>Markup</th><th>Result</th><th>Example</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>**text**</code></td><td><strong>Bold</strong></td><td><code>**Actor**</code></td></tr>
+                <tr><td><code>*text*</code></td><td><em>Italic</em></td><td><code>*Theme*</code></td></tr>
+                <tr><td><code>_text_</code></td><td><sub>Subscript</sub></td><td><code>Participant_1_</code></td></tr>
+                <tr><td><code>__text__</code></td><td><sup>Superscript</sup></td><td><code>NP__2__</code></td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <section id="extra-nodes">
+        <h2>6. Extra nodes and elision</h2>
+
+        <h3>Adding an extra child node</h3>
+        <p>
+            Once a node has been divided into children, you can insert additional child nodes. This is useful for representing elided or implicit constituents. Hover over the parent node and click the <span class="ui-element">+</span> button at the bottom of the node box.
+        </p>
+        <ol>
+            <li>A prompt will ask for the text of the new node (this can be left empty).</li>
+            <li>A position picker dialog appears, letting you choose where to insert the new node: <em>At the beginning</em>, <em>At the end</em>, or <em>Between "X" and "Y"</em>.</li>
+        </ol>
+        <p>
+            Extra nodes are marked internally as inserted nodes and behave like any other node — they can receive labels and be further divided.
+        </p>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <section id="editing">
+        <h2>7. Editing node text</h2>
+        <p>
+            M.A.K. allows you to edit the text of any node directly in the tree, without needing to undo and redo divisions. Hover over a node and click the <span class="ui-element">✎</span> button in the bottom-right corner.
+        </p>
+        <p>
+            The node's text becomes an editable input field. Type the new text and press <strong>Enter</strong> or click outside to confirm. This is useful for correcting typos, adjusting word boundaries, or modifying individual words after the initial division.
+        </p>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <section id="files">
+        <h2>8. File management</h2>
+        <p>
+            M.A.K. uses files with the <code>.mak</code> extension to save and load diagrams. These are JSON files that preserve the entire tree structure, all labels, and the original expression.
+        </p>
+
+        <h3>Save</h3>
+        <p>
+            Click <span class="ui-element">Save</span> in the left panel (or press <span class="key-tip">Ctrl</span>+<span class="key-tip">S</span> / <span class="key-tip">⌘</span>+<span class="key-tip">S</span>). The file is downloaded to your computer. The filename is generated automatically from the first words of the expression.
+        </p>
+
+        <h3>Load</h3>
+        <p>
+            Click <span class="ui-element">Load</span> in the left panel and select a <code>.mak</code> file from your computer. M.A.K. also accepts <code>.ent</code> files from the ENT tool; these are automatically migrated to M.A.K.'s format upon loading.
+        </p>
+
+        <div class="note-block">
+            <strong>Compatibility note:</strong> When loading an <code>.ent</code> file, M.A.K. converts the two-label system (function + category) used by ENT into M.A.K.'s multi-row label system. The upper label (<em>labelTop</em>) becomes the first label row. The lower label (<em>labelBottom</em>), if present, is preserved where applicable.
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <section id="export">
+        <h2>9. Exporting as PNG</h2>
+        <p>
+            M.A.K. exports the diagram as a <strong>PNG image with a transparent background</strong>, suitable for insertion into documents, slides, or academic papers.
+        </p>
+        <p>
+            Click <span class="ui-element">Export as PNG</span> in the left panel. During export, M.A.K. automatically:
+        </p>
+        <ul>
+            <li>Resets the zoom to 100% for consistent output.</li>
+            <li>Hides all interactive buttons (edit, delete, add, undo) so they do not appear in the image.</li>
+            <li>Hides empty label rows to produce clean, uninterrupted connector lines.</li>
+            <li>Converts label inputs into static text elements for accurate rendering.</li>
+        </ul>
+        <p>
+            After the image is captured, all interactive elements are restored. The exported image is downloaded automatically.
+        </p>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <section id="shortcuts">
+        <h2>10. Keyboard shortcuts</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Action</th>
+                    <th>Windows / Linux</th>
+                    <th>macOS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Undo</strong></td>
+                    <td><span class="key-tip">Ctrl</span>+<span class="key-tip">Z</span></td>
+                    <td><span class="key-tip">⌘</span>+<span class="key-tip">Z</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Redo</strong></td>
+                    <td><span class="key-tip">Ctrl</span>+<span class="key-tip">Y</span> or <span class="key-tip">Ctrl</span>+<span class="key-tip">⇧</span>+<span class="key-tip">Z</span></td>
+                    <td><span class="key-tip">⌘</span>+<span class="key-tip">⇧</span>+<span class="key-tip">Z</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Save .mak</strong></td>
+                    <td><span class="key-tip">Ctrl</span>+<span class="key-tip">S</span></td>
+                    <td><span class="key-tip">⌘</span>+<span class="key-tip">S</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Zoom in</strong></td>
+                    <td><span class="key-tip">Ctrl</span>+<span class="key-tip">+</span></td>
+                    <td><span class="key-tip">⌘</span>+<span class="key-tip">+</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Zoom out</strong></td>
+                    <td><span class="key-tip">Ctrl</span>+<span class="key-tip">−</span></td>
+                    <td><span class="key-tip">⌘</span>+<span class="key-tip">−</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Reset zoom (100%)</strong></td>
+                    <td><span class="key-tip">Ctrl</span>+<span class="key-tip">0</span></td>
+                    <td><span class="key-tip">⌘</span>+<span class="key-tip">0</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Next label (while editing)</strong></td>
+                    <td colspan="2"><span class="key-tip">Tab</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Previous label (while editing)</strong></td>
+                    <td colspan="2"><span class="key-tip">⇧</span>+<span class="key-tip">Tab</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <footer>
+        <p><strong>Carlos González Vergara</strong> (<a href="mailto:cgonzalv@uc.cl">cgonzalv@uc.cl</a>)</p>
+        <p>Departamento de Ciencias del Lenguaje · Pontificia Universidad Católica de Chile</p>
+        <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">
+            <img src="https://mirrors.creativecommons.org/presskit/buttons/88x31/svg/by-nc-nd.svg" alt="CC BY-NC-ND 4.0" />
+        </a>
+    </footer>
+</div>
+</body>
+</html>
