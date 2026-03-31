@@ -324,7 +324,7 @@
 
         <h3>Consolidating a node</h3>
         <p>
-            If a node contains more than one orthographic word but should be treated as a single syntactic unit (e.g. a phrasal verb or a proper name), you can <strong>consolidate</strong> it to prevent division. Hover over the node and click the <span class="ui-element">∪</span> button in the upper-left corner. The node will no longer be divisible. To reverse this, click the <span class="ui-element">÷</span> button that replaces it.
+            If a node contains more than one orthographic word but should be treated as a single syntactic unit (e.g. a phrasal verb or a proper name), you can <strong>consolidate</strong> it to prevent division. Hover over the node and click the <span class="ui-element">∪</span> button in the upper-left corner. The node will no longer be divisible and will be displayed with a white background, like a terminal node. To reverse this, click the <span class="ui-element">÷</span> button that replaces it.
         </p>
 
         <h3>Undoing a division</h3>
@@ -350,6 +350,7 @@
         <ul>
             <li>The <strong>root node</strong> displays its labels <strong>below</strong> the text box.</li>
             <li>All <strong>other nodes</strong> display their labels <strong>above</strong> the text box.</li>
+            <li>When the root node contains text, a vertical connector links it to its lower label stack. If the root text is cleared, that connector is hidden.</li>
         </ul>
 
         <h3>Multiple label rows</h3>
@@ -408,6 +409,9 @@
         </p>
         <p>
             The node's text becomes an editable input field. Type the new text and press <strong>Enter</strong> or click outside to confirm. This is useful for correcting typos, adjusting word boundaries, or modifying individual words after the initial division.
+        </p>
+        <p>
+            The root node adjusts its width to the text it contains. Other text-bearing nodes use a fixed box width; if the text is longer than the box, only the initial portion is displayed followed by ellipsis. This affects display only and does not alter the underlying text used for division.
         </p>
     </section>
 

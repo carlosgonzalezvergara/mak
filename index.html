@@ -33,6 +33,7 @@
             --label-border-filled: #B8A99A;
             --label-text: #4A3F37;
             --mak-text-scale: 1;
+            --row-h: calc((11px * var(--mak-text-scale, 1)) + (4px * var(--mak-text-scale, 1) * 2) + 2px);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -386,13 +387,13 @@
             flex-direction: column;
             align-items: center;
             position: relative;
-            padding-top: 24px;
+            padding-top: calc(var(--row-h) / 2);
         }
         .child-branch::before,
         .child-branch::after {
             content: "";
             position: absolute; top: 0;
-            width: 50%; height: 24px;
+            width: 50%; height: calc(var(--row-h) / 2);
             border-top: 1.5px solid var(--ink-muted);
         }
         .child-branch::before { right: 50%; }
@@ -401,7 +402,7 @@
         .child-branch:last-child::after { border-top: none; }
 
         .v-line-stem {
-            width: 1.5px; height: 24px;
+            width: 1.5px; height: calc(var(--row-h) / 2);
             background-color: var(--ink-muted);
             position: absolute; top: 0; left: 50%;
             transform: translateX(-50%);
@@ -415,7 +416,7 @@
             flex-direction: column;
             align-items: center;
             position: relative;
-            margin: 0 10px;
+            margin: 0 5px;
             width: fit-content;
         }
 
@@ -426,18 +427,38 @@
         }
 
         .node-box {
-            padding: 12px 24px;
-            border: 1px solid var(--rule);
-            border-radius: 6px;
-            background-color: var(--node-bg);
-            font-size: 16px;
+            height: var(--row-h);
+            width: 94px;
+            min-width: 94px;
+            padding: 0 calc(8px * var(--mak-text-scale, 1));
+            border: 1px solid var(--label-border-filled);
+            border-radius: 4px;
+            background-color: var(--label-bg-filled);
+            font-size: calc(11px * var(--mak-text-scale, 1));
             font-family: 'Source Sans 3', sans-serif;
-            color: var(--ink);
-            min-width: 100px;
+            font-style: italic;
+            color: var(--label-text);
             text-align: center;
             position: relative;
-            box-shadow: var(--node-shadow);
+            box-shadow: none;
             transition: box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            overflow: visible;
+        }
+        .node-box.root-node {
+            width: auto;
+            min-width: 94px;
+            max-width: none;
+        }
+        .node-text-ellipsis {
+            display: block;
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .node-box.can-divide {
             border-color: var(--accent-border);
@@ -445,7 +466,12 @@
             cursor: pointer;
         }
         .node-box.can-divide:hover {
-            box-shadow: var(--node-shadow-hover);
+            box-shadow: none;
+        }
+        .node-box.terminal-node {
+            background-color: #fff;
+            color: #6e1b1b;
+            font-weight: 600;
         }
 
         /* ===========================================
@@ -462,7 +488,7 @@
 
         .label-connector-v {
             width: 1.5px;
-            height: 6px;
+            height: var(--row-h);
             background-color: var(--ink-muted);
             margin: 0 auto;
             flex-shrink: 0;
@@ -473,19 +499,22 @@
             display: inline-flex;
             align-items: center;
             gap: 2px;
-            margin: 1px 0;
+            margin: 0;
         }
 
         .label-input {
-            width: 140px;
+            width: 94px;
             text-align: center;
             border: 1px dashed var(--rule);
             border-radius: 4px;
-            padding: calc(4px * var(--mak-text-scale, 1));
+            height: var(--row-h);
+            padding: 0 calc(4px * var(--mak-text-scale, 1));
             font-size: calc(11px * var(--mak-text-scale, 1));
+            line-height: var(--row-h);
             background: var(--label-bg);
             color: var(--ink-muted);
             font-family: 'Source Sans 3', sans-serif;
+            box-sizing: border-box;
         }
         .label-input.has-value {
             background-color: var(--label-bg-filled);
@@ -494,17 +523,21 @@
         }
 
         .label-display {
-            min-width: 140px;
+            min-width: 94px;
             text-align: center;
             border: 1px dashed var(--rule);
             border-radius: 4px;
-            padding: calc(4px * var(--mak-text-scale, 1));
+            height: var(--row-h);
+            padding: 0 calc(4px * var(--mak-text-scale, 1));
             font-size: calc(11px * var(--mak-text-scale, 1));
             background: var(--label-bg);
             color: var(--ink-muted);
             font-family: 'Source Sans 3', sans-serif;
             cursor: text;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
         }
         .label-display.has-value {
             background-color: var(--label-bg-filled);
@@ -633,7 +666,7 @@
         }
         .node-revert-btn {
             position: absolute; left: 100%; top: 50%;
-            transform: translate(2px, -50%);
+            transform: translate(10px, -50%);
             z-index: 50; pointer-events: auto;
         }
 
@@ -1350,6 +1383,7 @@
                     const labelAddBtns = treeWrapper.querySelectorAll('.label-add-btn');
                     const labelRemoveBtns = treeWrapper.querySelectorAll('.label-remove-btn');
                     const editBtns = treeWrapper.querySelectorAll('.edit-text-btn');
+                    const consolidateBtns = treeWrapper.querySelectorAll('.consolidate-btn');
 
                     undoBtns.forEach(b => b.style.visibility = 'hidden');
                     clearBtns.forEach(b => b.style.display = 'none');
@@ -1357,6 +1391,7 @@
                     labelAddBtns.forEach(b => b.style.display = 'none');
                     labelRemoveBtns.forEach(b => b.style.display = 'none');
                     editBtns.forEach(b => b.style.display = 'none');
+                    consolidateBtns.forEach(b => b.style.display = 'none');
 
                     const connectors = treeWrapper.querySelectorAll('.connector-v, .v-line-stem');
                     const nodeBoxes = treeWrapper.querySelectorAll('.node-box');
@@ -1367,6 +1402,14 @@
                         nodeBoxes: Array.from(nodeBoxes).map(el => ({ el, cssText: el.style.cssText })),
                         treeWrapperPos: treeWrapper.style.position
                     };
+
+                    // Strip node boxes: transparent bg/border/shadow
+                    nodeBoxes.forEach(box => {
+                        box.style.background = 'transparent';
+                        box.style.backgroundColor = 'transparent';
+                        box.style.border = '1px solid transparent';
+                        box.style.boxShadow = 'none';
+                    });
 
                     const getLabelValue = (element) => {
                         if (!element) return '';
@@ -1395,7 +1438,7 @@
                             } else {
                                 anyLabelHasValue = true;
                                 span.className = 'exp-label';
-                                span.style.cssText = `display: inline-block; min-width: 140px; text-align: center; font-size: 11px; font-family: Arial, sans-serif; padding: 4px; border: 1px solid var(--label-border-filled); border-radius: 4px; background-color: var(--label-bg-filled); color: var(--label-text);`;
+                                span.style.cssText = `display: inline-flex; align-items: center; justify-content: center; min-width: 94px; height: var(--row-h); text-align: center; font-size: calc(11px * var(--mak-text-scale, 1)); font-family: 'Source Sans 3', sans-serif; padding: 0 calc(4px * var(--mak-text-scale, 1)); border: 1px solid transparent; border-radius: 4px; background-color: transparent; color: var(--label-text); box-sizing: border-box;`;
                                 applyFormatToSpan(span, combinedVal);
                             }
 
@@ -1446,6 +1489,7 @@
                     labelAddBtns.forEach(b => b.style.display = '');
                     labelRemoveBtns.forEach(b => b.style.display = '');
                     editBtns.forEach(b => b.style.display = '');
+                    consolidateBtns.forEach(b => b.style.display = '');
 
                 } finally {
                     setZoomLevel(savedZoom);
@@ -1528,7 +1572,7 @@
                                 onKeyDown={handleKeyDown} 
                                 autoFocus 
                                 className={baseClass} 
-                                style={{ width: '140px' }} 
+                                style={{ width: '94px' }} 
                                 placeholder="label" 
                             />
                         </div>
@@ -1540,7 +1584,7 @@
                     <div className="label-wrap">
                         <span 
                             className={displayClass} 
-                            style={{ width: '140px', minWidth: '140px' }} 
+                            style={{ width: '94px', minWidth: '94px' }} 
                             onClick={startEditing} 
                             data-raw-value={value || ''}
                         >
@@ -1575,6 +1619,9 @@
             // ===========================================
             // RENDERIZADO DE NODOS
             // ===========================================
+            // ===========================================
+            // RENDERIZADO DE NODOS
+            // ===========================================
             const renderNode = (node) => {
                 const isRoot = node.id === 'root';
                 const isDiv = divisionMode === node.id;
@@ -1584,19 +1631,39 @@
                 const canDivide = words.length > 1 && !node.isInserted && !node.isConsolidated;
                 const canConsolidate = words.length > 1 && !node.isInserted && !hasC;
                 const isTerminal = !hasC;
+                const isSingleWordTerminal = isTerminal && words.length === 1;
+                const isWhiteTerminal = isTerminal && (words.length === 1 || node.isConsolidated);
                 const isEditingText = editingNode === node.id;
+                const isSplitPoint = isEmpty && hasC && !isRoot;
+
+                if (isSplitPoint) {
+                    return (
+                        <div className="node-container" key={node.id}>
+                            {renderLabelsStack(node)}
+                            <div style={{display:'flex', flexDirection:'column', alignItems:'center', width:'100%'}}>
+                                <div className="connector-v" style={{height:'calc(var(--row-h) / 2)'}} />
+                                <div className="children-container">
+                                    {node.children.map((c) => (
+                                        <div className="child-branch" key={c.id}>
+                                            <div className="v-line-stem" />
+                                            {renderNode(c)}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
 
                 return (
                     <div className="node-container" key={node.id}>
-                        {/* Upper labels: non-root nodes only */}
                         {!isRoot && renderLabelsStack(node)}
 
                         {isEmpty ? (
-                            isRoot ? null : <div className="connector-v" style={{ height: '36px' }} />
+                            isRoot ? null : <div className="connector-v" style={{ height: 'var(--row-h)' }} />
                         ) : (
                             <>
-                                {/* Top connector: not drawn on root node */}
-                                {!isRoot && <div className="connector-v" style={{ height: '12px' }} />}
+                                {!isRoot && <div className="connector-v" style={{ height: 'var(--row-h)' }} />}
 
                                 {isDiv ? (
                                     <div style={{background:'#f8fafc', padding:'15px', border:'1px solid #374151', borderRadius:'4px'}}>
@@ -1620,7 +1687,7 @@
                                     </div>
                                 ) : (
                                     <div className="node-box-row">
-                                        <div className={`node-box ${(canDivide && !isEditingText) ? 'can-divide' : ''}`} onClick={() => !hasC && canDivide && !isEditingText && setDivisionMode(node.id)}>
+                                        <div className={`node-box ${isRoot ? 'root-node' : ''} ${isWhiteTerminal ? 'terminal-node' : ''} ${(canDivide && !isEditingText) ? 'can-divide' : ''}`} onClick={() => !hasC && canDivide && !isEditingText && setDivisionMode(node.id)}>
                                             {isEditingText ? (
                                                 <input
                                                     type="text"
@@ -1631,13 +1698,17 @@
                                                     autoFocus
                                                     style={{
                                                         textAlign: 'center', border: '1px dashed var(--accent)', borderRadius: '4px',
-                                                        padding: '2px 4px', fontFamily: 'inherit', fontSize: '16px', color: 'var(--ink)',
-                                                        background: 'var(--cream)', outline: 'none', width: `${Math.max(node.text?.length || 1, 3)}ch`, minWidth: '40px'
+                                                        padding: '2px 4px', fontFamily: 'inherit', fontStyle: 'italic', fontSize: 'calc(11px * var(--mak-text-scale, 1))', color: 'var(--ink)',
+                                                        background: 'var(--cream)', outline: 'none', width: isRoot ? `${Math.max(node.text?.length || 1, 3)}ch` : 'calc(100% - 8px)', minWidth: isRoot ? '40px' : '0', maxWidth: isRoot ? 'none' : 'calc(100% - 8px)'
                                                     }}
                                                     onClick={(e) => e.stopPropagation()}
                                                 />
                                             ) : (
-                                                node.text
+                                                isRoot ? (
+                                                    node.text
+                                                ) : (
+                                                    <span className="node-text-ellipsis" title={node.text}>{node.text}</span>
+                                                )
                                             )}
 
                                             {canConsolidate && !isEditingText && (
@@ -1661,17 +1732,20 @@
                                     </div>
                                 )}
 
-                                {/* Bottom connector: only if node has children */}
-                                {!isTerminal && <div className="connector-v" style={{ height: '12px' }} />}
                             </>
                         )}
 
                         {/* Lower labels: root node only */}
-                        {isRoot && renderLabelsStack(node)}
+                        {isRoot && (
+                            <>
+                                {!isEmpty && <div className="connector-v" style={{height:'var(--row-h)'}} />}
+                                {renderLabelsStack(node)}
+                            </>
+                        )}
 
                         {hasC && (
                             <div style={{display:'flex', flexDirection:'column', alignItems:'center', width:'100%'}}>
-                                <div className="connector-v" style={{height:'24px'}} />
+                                <div className="connector-v" style={{height:'calc(var(--row-h) / 2)'}} />
                                 <div className="children-container">
                                     {node.children.map((c) => (
                                         <div className="child-branch" key={c.id}>
