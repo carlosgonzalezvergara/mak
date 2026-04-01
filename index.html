@@ -14,7 +14,7 @@
         :root {
             --parchment: #FAF6F1;
             --parchment-deep: #F3EDE4;
-            --cream: #FFFDF9;
+            --cream: #FFFFFF;
             --ink: #2C2420;
             --ink-light: #5C534D;
             --ink-muted: #8C837B;
@@ -671,18 +671,27 @@
         }
 
         .btn-danger-soft {
-            background-color: var(--accent-soft);
-            color: #991b1b;
-            border: 1px solid var(--accent-border);
-            padding: 4px 10px;
-            font-size: 11px;
+            background-color: var(--cream); /* Fondo más claro para hacer contraste */
+            color: var(--ink-muted); /* Ícono en un tono neutro */
+            border: 1px solid var(--rule);
+            width: 25px; /* Ancho fijo reducido */
+            height: 15px; /* Alto fijo reducido */
+            padding: 0; /* Eliminamos el padding para centrar mejor el ícono */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px; /* Tamaño de la flecha ajustado */
+            font-weight: bold;
             cursor: pointer;
             border-radius: 4px;
             transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(44,36,32,0.05); /* Pequeña sombra para darle relieve */
         }
+
         .btn-danger-soft:hover {
-            background-color: #fecaca;
-            border-color: #f87171;
+            background-color: #fef2f2; /* Fondo rojizo suave al hacer hover */
+            border-color: #f87171; /* Borde rojo de alerta */
+            color: #991b1b; /* Ícono rojo oscuro */
         }
 
         /* ===========================================
@@ -1719,7 +1728,7 @@
                                             {hasC && !node.isInserted && !isEditingText && (
                                                 <button className="add-node-btn" title="Add child node" onClick={(e) => { e.stopPropagation(); addChildNode(node.id); }}>+</button>
                                             )}
-                                            {!isEditingText && (
+                                            {!isEditingText && canDivide && (
                                                 <button className="clear-text-btn" title="Clear text" onClick={(e) => { e.stopPropagation(); setTree(prev => updateNode(prev, node.id, { text: '' })); }}>✕</button>
                                             )}
                                             {!isEditingText && (
