@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M.A.K. — Systemic Functional Linguistics Diagram Tool</title>
+    <title>M.A.K. - Systemic Functional Linguistics Diagram Tool</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
@@ -538,6 +538,9 @@
             align-items: center;
             justify-content: center;
             box-sizing: border-box;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
         .label-display.has-value {
             background-color: var(--label-bg-filled);
@@ -666,7 +669,7 @@
         }
         .node-revert-btn {
             position: absolute; left: 100%; top: 50%;
-            transform: translate(10px, -50%);
+            transform: translate(3px, -50%);
             z-index: 50; pointer-events: auto;
         }
 
@@ -1593,11 +1596,13 @@
                     <div className="label-wrap">
                         <span 
                             className={displayClass} 
-                            style={{ width: '94px', minWidth: '94px' }} 
+                            style={{ width: '94px', minWidth: '94px', maxWidth: '94px' }} 
                             onClick={startEditing} 
                             data-raw-value={value || ''}
                         >
-                            {hasValue ? formatLabelText(value) : <span style={{color: '#9ca3af'}}>label</span>}
+                            <span className="node-text-ellipsis" title={hasValue ? value : ''}>
+                                {hasValue ? formatLabelText(value) : <span style={{color: '#9ca3af'}}>label</span>}
+                            </span>
                         </span>
                     </div>
                 );
