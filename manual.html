@@ -241,7 +241,7 @@
             <li><a href="#extra-nodes">7. Extra nodes and elision</a></li>
             <li><a href="#editing">8. Editing node text</a></li>
             <li><a href="#files">9. File management</a></li>
-            <li><a href="#export">10. Exporting as PNG</a></li>
+            <li><a href="#export">10. Download as Image</a></li>
             <li><a href="#shortcuts">11. Keyboard shortcuts</a></li>
         </ul>
     </nav>
@@ -267,7 +267,7 @@
             M.A.K. uses a <strong>split layout</strong> with two areas:
         </p>
         <ul>
-            <li><strong>Left panel</strong> — a narrow sidebar containing the logo, the <span class="ui-element">✦ New Diagram</span> button, file operations (Save, Load, Export), history controls (Undo, Redo), zoom controls, and a collapsible quick-reference guide.</li>
+            <li><strong>Left panel</strong> — a narrow sidebar containing the logo, the <span class="ui-element">✦ New Diagram</span> button, file operations (Save Project, Load Project, Download as Image), history controls (Undo, Redo), zoom controls, and a collapsible quick-reference guide.</li>
             <li><strong>Canvas</strong> — the main area where the tree diagram is displayed and edited. When no diagram is active, the canvas shows a placeholder message.</li>
         </ul>
 
@@ -449,10 +449,10 @@
                 <tr><th>Markup</th><th>Result</th><th>Example</th></tr>
             </thead>
             <tbody>
-                <tr><td><code>**text**</code></td><td><strong>Bold</strong></td><td><code>**Actor**</code></td></tr>
-                <tr><td><code>*text*</code></td><td><em>Italic</em></td><td><code>*Theme*</code></td></tr>
-                <tr><td><code>_text_</code></td><td><sub>Subscript</sub></td><td><code>Participant_1_</code></td></tr>
-                <tr><td><code>__text__</code></td><td><sup>Superscript</sup></td><td><code>NP__2__</code></td></tr>
+                <tr><td><code>**text**</code></td><td><strong>Actor</strong></td><td><code>**Actor**</code></td></tr>
+                <tr><td><code>*text*</code></td><td><em>Theme</em></td><td><code>*Theme*</code></td></tr>
+                <tr><td><code>_text_</code></td><td>Participant<sub>1</sub></td><td><code>Participant_1_</code></td></tr>
+                <tr><td><code>__text__</code></td><td>NP<sup>2</sup></td><td><code>NP__2__</code></td></tr>
             </tbody>
         </table>
     </section>
@@ -495,39 +495,24 @@
             M.A.K. uses files with the <code>.mak</code> extension to save and load diagrams. These are JSON files that preserve the entire tree structure, all labels, and the original expression.
         </p>
 
-        <h3>Save</h3>
+        <h3>Save Project</h3>
         <p>
-            Click <span class="ui-element">Save</span> in the left panel (or press <span class="key-tip">Ctrl</span>+<span class="key-tip">S</span> / <span class="key-tip">⌘</span>+<span class="key-tip">S</span>). The file is downloaded to your computer. The filename is generated automatically from the first words of the expression.
+            Click <span class="ui-element">Save Project</span> in the left panel (or press <span class="key-tip">Ctrl</span>+<span class="key-tip">S</span> / <span class="key-tip">⌘</span>+<span class="key-tip">S</span>). The file is downloaded to your computer. The filename is generated automatically from the first words of the expression.
         </p>
 
-        <h3>Load</h3>
+        <h3>Load Project</h3>
         <p>
-            Click <span class="ui-element">Load</span> in the left panel and select a <code>.mak</code> file from your computer. M.A.K. also accepts <code>.ent</code> files from the ENT tool; these are automatically migrated to M.A.K.'s format upon loading.
-        </p>
-
-        <div class="note-block">
-            <strong>Compatibility note:</strong> When loading an <code>.ent</code> file, M.A.K. converts the two-label system (function + category) used by ENT into M.A.K.'s multi-row label system. The upper label (<em>labelTop</em>) becomes the first label row. The lower label (<em>labelBottom</em>), if present, is preserved where applicable.
-        </div>
+            Click <span class="ui-element">Load Project</span> in the left panel and select a <code>.mak</code> file from your computer.
     </section>
 
     <!-- ═══════════════════════════════════════════ -->
     <section id="export">
-        <h2>10. Exporting as PNG</h2>
+        <h2>10. Download as Image</h2>
         <p>
             M.A.K. exports the diagram as a <strong>PNG image with a transparent background</strong>, suitable for insertion into documents, slides, or academic papers.
         </p>
         <p>
-            Click <span class="ui-element">Export as PNG</span> in the left panel. During export, M.A.K. automatically:
-        </p>
-        <ul>
-            <li>Resets the zoom to 100% for consistent output.</li>
-            <li>Hides all interactive buttons (edit, delete, add, undo) so they do not appear in the image.</li>
-            <li>Hides empty label rows to produce clean, uninterrupted connector lines.</li>
-            <li>Converts label inputs into static text elements for accurate rendering.</li>
-        </ul>
-        <p>
-            After the image is captured, all interactive elements are restored. The exported image is downloaded automatically.
-        </p>
+            Click <span class="ui-element">Export as PNG</span> in the left panel.
     </section>
 
     <!-- ═══════════════════════════════════════════ -->
@@ -585,7 +570,7 @@
     </section>
 
     <footer>
-        <p><strong>Carlos González Vergara</strong> (<a href="/cdn-cgi/l/email-protection#bad9ddd5d4c0dbd6ccfacfd994d9d6"><span class="__cf_email__" data-cfemail="3556525a5b4f5459437540561b5659">[email&#160;protected]</span></a>)</p>
+        <p><strong>Carlos González Vergara</strong> (<strong><a href="mailto:cgonzalv@uc.cl">cgonzalv@uc.cl</a></strong>)</p>
         <p>Departamento de Ciencias del Lenguaje · Pontificia Universidad Católica de Chile</p>
         <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">
             <img src="https://mirrors.creativeco
