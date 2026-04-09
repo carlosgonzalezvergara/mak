@@ -779,6 +779,41 @@
         .ipa-char-btn:active { transform: scale(0.95); }
 
         /* ===========================================
+           CLITIC SUGGESTION MODAL
+           =========================================== */
+        .clitic-list { list-style: none; padding: 0; margin: 0 0 14px; }
+        .clitic-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 10px; border-radius: 6px; margin-bottom: 4px;
+            background: var(--parchment); border: 1px solid var(--rule-light);
+            font-size: 14px; font-family: 'Source Sans 3', sans-serif;
+        }
+        .clitic-item:last-child { margin-bottom: 0; }
+        .clitic-item input[type="checkbox"] {
+            accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer;
+        }
+        .clitic-original {
+            color: var(--ink-muted); text-decoration: line-through; min-width: 70px;
+        }
+        .clitic-arrow { color: var(--ink-muted); font-size: 13px; }
+        .clitic-suggestion { color: var(--accent); font-weight: 600; }
+
+        .contraction-original {
+            font-weight: 600; color: var(--ink); font-size: 14px;
+            min-width: 80px; flex-shrink: 0;
+        }
+        .contraction-select {
+            flex: 1; padding: 7px 10px; border: 1px solid var(--rule);
+            border-radius: 6px; font-size: 14px; color: var(--ink);
+            background: #fff; min-width: 140px;
+            font-family: 'Source Sans 3', sans-serif;
+        }
+        .contraction-select:focus {
+            outline: none; border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(139,58,58,0.1);
+        }
+
+        /* ===========================================
            MODALS
            =========================================== */
         .pos-overlay {
@@ -892,6 +927,8 @@
             const [divisionMode, setDivisionMode] = useState(null);
             const [selectedCuts, setSelectedCuts] = useState([]);
             const [posPicker, setPosPicker] = useState(null);
+            const [cliticPending, setCliticPending] = useState(null);
+            const [contractionPending, setContractionPending] = useState(null);
 
             // Historial Undo/Redo
             const [history, setHistory] = useState([]);
@@ -947,14 +984,219 @@
                 return `${words}.${ext}`;
             };
 
+            const normalizeSentence = (text) => {
+                return text.trim()
+                    // === SPANISH: contractions & fused pronouns ===
+                    .replace(/\bdel\b/gi, 'de el')
+                    .replace(/\bal\b/gi, 'a el')
+                    .replace(/\bconmigo\b/gi, 'con migo')
+                    .replace(/\bcontigo\b/gi, 'con tigo')
+                    .replace(/\bconsigo\b/gi, 'con sigo')
+                    // === ENGLISH: normalize curly apostrophes ===
+                    .replace(/['']/g, "'")
+                    // Irregular negative contractions (must come first)
+                    .replace(/\bwon't\b/gi, 'will not')
+                    .replace(/\bcan't\b/gi, 'can not')
+                    .replace(/\bshan't\b/gi, 'shall not')
+                    .replace(/\bain't\b/gi, 'am not')
+                    // Regular negative contractions: don't, doesn't, didn't, isn't, aren't, etc.
+                    .replace(/n't\b/gi, ' not')
+                    // Unambiguous verb contractions
+                    .replace(/\b(I|you|we|they|he|she|it|who|what|that|there|here)'ll\b/gi, '$1 will')
+                    .replace(/\b(I|you|we|they|he|she|it|who|what|that|there|here)'ve\b/gi, '$1 have')
+                    .replace(/\b(you|we|they|who|what|that|there|here)'re\b/gi, '$1 are')
+                    .replace(/\bI'm\b/gi, 'I am')
+                    .replace(/\blet's\b/gi, 'let us')
+                    .replace(/\bwanna\b/gi, 'want to');
+                    // Note: 's and 'd are ambiguous and handled interactively
+            };
+
             const createEmptyTree = (text) => ({
                 id: 'root',
-                text: text.trim(), // Sin detección automática
+                text: normalizeSentence(text),
                 labels: [''],
                 children: null,
                 isNucleus: false,
                 isConsolidated: false
             });
+
+            // ===========================================
+            // DETECCIÓN DE CLÍTICOS
+            // ===========================================
+            const CLITIC_LIST = ['nos', 'les', 'los', 'las', 'me', 'te', 'se', 'le', 'lo', 'la', 'os'];
+            const SHORT_IMPERATIVE_STEMS = new Set([
+                'di', 'da', 've', 'haz', 'pon', 'sal', 'ten', 'ven', 'id', 'sé', 'se', 'oíd', 'ved', 'oye', 'oid'
+            ]);
+            const CLITIC_EXCLUSIONS = new Set([
+                'modelo', 'modelos', 'consuelo', 'consuelos', 'anzuelo', 'anzuelos',
+                'pañuelo', 'pañuelos', 'abuelo', 'abuelos',
+                'cielo', 'cielos', 'hielo', 'hielos', 'vuelo', 'vuelos',
+                'suelo', 'suelos', 'duelo', 'duelos', 'pelo', 'pelos',
+                'aquellos', 'aquellas', 'ellos', 'ellas',
+                'estilo', 'estilos', 'siglo', 'siglos', 'título', 'títulos',
+                'ejemplo', 'ejemplos', 'ángeles', 'tales',
+            ]);
+
+            const stripAccents = (str) => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+            const extractClitics = (word) => {
+                let remaining = word.toLowerCase();
+                const clitics = [];
+                const MAX_CLITICS = 3;
+
+                for (let i = 0; i < MAX_CLITICS; i++) {
+                    let matched = false;
+                    for (const cl of CLITIC_LIST) {
+                        if (remaining.endsWith(cl) && remaining.length > cl.length) {
+                            clitics.unshift(cl);
+                            remaining = remaining.slice(0, -cl.length);
+                            matched = true;
+                            break;
+                        }
+                    }
+                    if (!matched) break;
+                }
+
+                if (clitics.length > 0 && remaining.length >= 2) {
+                    const originalStem = word.slice(0, remaining.length);
+                    return { stem: remaining, clitics, suggestion: originalStem + ' ' + clitics.join(' ') };
+                }
+                return null;
+            };
+
+            const detectCliticCandidates = (text) => {
+                const words = text.trim().split(/\s+/);
+                const candidates = [];
+                const PUNCT_RE = /^([¡¿"'«(]*)(.+?)([!?.,;:…"'»)"']*)$/;
+
+                for (let i = 0; i < words.length; i++) {
+                    const word = words[i];
+                    const match = word.match(PUNCT_RE);
+                    if (!match) continue;
+                    const [, puncBefore, core, puncAfter] = match;
+
+                    if (CLITIC_EXCLUSIONS.has(core.toLowerCase())) continue;
+
+                    const result = extractClitics(core);
+                    if (!result) continue;
+
+                    const stem = result.stem;
+                    const stemClean = stripAccents(stem);
+
+                    const shouldFlag =
+                        stemClean.endsWith('r') ||
+                        stemClean.endsWith('ndo') ||
+                        stemClean.endsWith('d') ||
+                        /[áéíóú]/.test(core) ||
+                        SHORT_IMPERATIVE_STEMS.has(stemClean);
+
+                    if (shouldFlag) {
+                        const suggestion = puncBefore + result.suggestion + puncAfter;
+                        candidates.push({
+                            index: i,
+                            original: word,
+                            suggestion,
+                            checked: true
+                        });
+                    }
+                }
+
+                return candidates;
+            };
+
+            const applyCliticSeparations = (text, candidates) => {
+                const words = text.trim().split(/\s+/);
+                const checkedByIndex = {};
+                candidates.forEach(c => {
+                    if (c.checked) {
+                        const separated = c.suggestion.trim().split(/\s+/);
+                        checkedByIndex[c.index] = separated;
+                    }
+                });
+                const result = [];
+                for (let i = 0; i < words.length; i++) {
+                    if (checkedByIndex[i]) {
+                        result.push(...checkedByIndex[i]);
+                    } else {
+                        result.push(words[i]);
+                    }
+                }
+                return result.join(' ');
+            };
+
+            // ===========================================
+            // ENGLISH CONTRACTION DISAMBIGUATION ('s / 'd)
+            // ===========================================
+            const CONTRACTION_PUNCT_RE = /^([("'¿¡]*)(.+?)([!?.,;:…"')"']*)$/;
+
+            const detectAmbiguousContractions = (text) => {
+                const normalized = text.replace(/['']/g, "'");
+                const words = normalized.trim().split(/\s+/);
+                const candidates = [];
+
+                for (let i = 0; i < words.length; i++) {
+                    const word = words[i];
+                    const match = word.match(CONTRACTION_PUNCT_RE);
+                    if (!match) continue;
+                    const [, puncBefore, core, puncAfter] = match;
+                    const lower = core.toLowerCase();
+
+                    // Skip let's (handled automatically by normalizeSentence)
+                    if (lower === "let's") continue;
+
+                    if (/'s$/i.test(core)) {
+                        const base = core.slice(0, -2);
+                        candidates.push({
+                            index: i,
+                            original: word,
+                            core,
+                            base,
+                            puncBefore,
+                            puncAfter,
+                            type: 's',
+                            expansion: 'is',
+                            options: [
+                                { value: 'is', label: `${base} is` },
+                                { value: 'has', label: `${base} has` },
+                                { value: 'possessive', label: `${core} (possessive — no change)` }
+                            ]
+                        });
+                    } else if (/'d$/i.test(core)) {
+                        const base = core.slice(0, -2);
+                        candidates.push({
+                            index: i,
+                            original: word,
+                            core,
+                            base,
+                            puncBefore,
+                            puncAfter,
+                            type: 'd',
+                            expansion: 'would',
+                            options: [
+                                { value: 'would', label: `${base} would` },
+                                { value: 'had', label: `${base} had` }
+                            ]
+                        });
+                    }
+                }
+
+                return candidates;
+            };
+
+            const applyContractionExpansions = (text, candidates) => {
+                const normalized = text.replace(/['']/g, "'");
+                const words = normalized.trim().split(/\s+/);
+                const sorted = [...candidates].sort((a, b) => b.index - a.index);
+                for (const c of sorted) {
+                    if (c.expansion === 'possessive') {
+                        words[c.index] = c.puncBefore + c.core + c.puncAfter;
+                    } else {
+                        const expanded = c.base + ' ' + c.expansion;
+                        words[c.index] = c.puncBefore + expanded + c.puncAfter;
+                    }
+                }
+                return words.join(' ');
+            };
 
             const makeNewNode = (text = '') => ({
                 id: `added-${Date.now()}-${Math.random().toString(16).slice(2)}`,
@@ -1802,16 +2044,93 @@
 
             const handleNewDiagram = () => {
                 setNewDiagramText('');
-                setShowIPA(false); // Reseteamos el panel al abrir
+                setShowIPA(false);
+                setCliticPending(null);
+                setContractionPending(null);
                 setShowNewDiagram(true);
+            };
+
+            // --- Helper: proceed after clitics are resolved (check for English contractions next) ---
+            const proceedAfterClitics = (text) => {
+                const contractions = detectAmbiguousContractions(text);
+                if (contractions.length > 0) {
+                    setContractionPending({ text, candidates: contractions });
+                } else {
+                    finalizeAndStart(text);
+                }
+            };
+
+            // --- Helper: finalize and start analysis ---
+            const finalizeAndStart = (text) => {
+                setSentence(text);
+                setShowNewDiagram(false);
+                setNewDiagramText('');
+                setCliticPending(null);
+                setContractionPending(null);
+                startAnalysis(text);
             };
 
             const handleNewDiagramConfirm = () => {
                 if (!newDiagramText.trim()) return;
-                setSentence(newDiagramText.trim());
-                setShowNewDiagram(false);
-                setNewDiagramText('');
-                startAnalysis(newDiagramText.trim());
+                const text = newDiagramText.trim();
+                // Step 1: check Spanish clitics
+                const clitics = detectCliticCandidates(text);
+                if (clitics.length > 0) {
+                    setCliticPending({ text, candidates: clitics });
+                } else {
+                    // No clitics — check English contractions
+                    proceedAfterClitics(text);
+                }
+            };
+
+            // --- Clitic modal handlers ---
+            const handleCliticConfirm = () => {
+                if (!cliticPending) return;
+                const textAfterClitics = applyCliticSeparations(cliticPending.text, cliticPending.candidates);
+                setCliticPending(null);
+                proceedAfterClitics(textAfterClitics);
+            };
+
+            const handleCliticBack = () => {
+                setCliticPending(null);
+            };
+
+            const toggleCliticCandidate = (idx) => {
+                setCliticPending(prev => {
+                    if (!prev) return prev;
+                    const updated = prev.candidates.map((c, i) =>
+                        i === idx ? { ...c, checked: !c.checked } : c
+                    );
+                    return { ...prev, candidates: updated };
+                });
+            };
+
+            // --- Contraction modal handlers ---
+            const handleContractionConfirm = () => {
+                if (!contractionPending) return;
+                const finalText = applyContractionExpansions(contractionPending.text, contractionPending.candidates);
+                finalizeAndStart(finalText);
+            };
+
+            const handleContractionSkip = () => {
+                if (!contractionPending) return;
+                finalizeAndStart(contractionPending.text);
+            };
+
+            const handleContractionBack = () => {
+                setContractionPending(null);
+                // Go back: if there were clitics originally, re-show them? 
+                // Simpler: just go back to input step
+            };
+
+            const updateContractionExpansion = (idx, value) => {
+                setContractionPending(prev => {
+                    if (!prev) return prev;
+                    const updated = prev.candidates.map((c, i) =>
+                        i === idx ? { ...c, expansion: value } : c
+                    );
+                    return { ...prev, candidates: updated };
+                });
             };
 
             return (
@@ -1959,8 +2278,11 @@
 
                     {/* NEW DIAGRAM MODAL */}
                     {showNewDiagram && (
-                        <div className="pos-overlay" onClick={() => setShowNewDiagram(false)}>
+                        <div className="pos-overlay" onClick={() => { setShowNewDiagram(false); setCliticPending(null); setContractionPending(null); }}>
                             <div className="new-diagram-modal" onClick={(e) => e.stopPropagation()}>
+
+                                {/* STEP 1: Input */}
+                                {!cliticPending && !contractionPending && (<>
                                 <h4 className="new-diagram-title">New Diagram</h4>
                                 <p className="new-diagram-sub">Type the expression you want to analyse.</p>
                                 
@@ -2005,6 +2327,63 @@
                                     <button className="btn btn-outline" onClick={() => setShowNewDiagram(false)}>Cancel</button>
                                     <button className="btn btn-primary" onClick={handleNewDiagramConfirm} disabled={!newDiagramText.trim()}>Analyse</button>
                                 </div>
+                                </>)}
+
+                                {/* STEP 2: Spanish clitic suggestions */}
+                                {cliticPending && !contractionPending && (<>
+                                <h4 className="new-diagram-title">Separate clitics?</h4>
+                                <p className="new-diagram-sub">The following words may contain enclitic pronouns. Check the ones you want to separate into independent grammatical words.</p>
+
+                                <ul className="clitic-list">
+                                    {cliticPending.candidates.map((c, i) => (
+                                        <li key={i} className="clitic-item">
+                                            <input
+                                                type="checkbox"
+                                                checked={c.checked}
+                                                onChange={() => toggleCliticCandidate(i)}
+                                            />
+                                            <span className="clitic-original">{c.original}</span>
+                                            <span className="clitic-arrow">→</span>
+                                            <span className="clitic-suggestion">{c.suggestion}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                <div className="new-diagram-actions">
+                                    <button className="btn btn-outline" onClick={handleCliticBack}>Back</button>
+                                    <button className="btn btn-primary" onClick={handleCliticConfirm}>Confirm</button>
+                                </div>
+                                </>)}
+
+                                {/* STEP 3: English contraction disambiguation */}
+                                {contractionPending && (<>
+                                <h4 className="new-diagram-title">Ambiguous contractions</h4>
+                                <p className="new-diagram-sub">The following contractions can be interpreted in more than one way. Please select the correct expansion for each.</p>
+
+                                <div className="clitic-list">
+                                    {contractionPending.candidates.map((c, idx) => (
+                                        <div key={idx} className="clitic-item">
+                                            <span className="contraction-original">{c.original}</span>
+                                            <span className="clitic-arrow">→</span>
+                                            <select
+                                                className="contraction-select"
+                                                value={c.expansion}
+                                                onChange={(e) => updateContractionExpansion(idx, e.target.value)}
+                                            >
+                                                {c.options.map(opt => (
+                                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="new-diagram-actions">
+                                    <button className="btn btn-outline" onClick={handleContractionSkip}>Skip</button>
+                                    <button className="btn btn-primary" onClick={handleContractionConfirm}>Apply and analyse</button>
+                                </div>
+                                </>)}
+
                             </div>
                         </div>
                     )}

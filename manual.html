@@ -235,13 +235,14 @@
             <li><a href="#overview">1. Overview</a></li>
             <li><a href="#interface">2. The interface</a></li>
             <li><a href="#new-diagram">3. Creating a new diagram</a></li>
-            <li><a href="#division">4. Division mechanics</a></li>
-            <li><a href="#labels">5. The label system</a></li>
-            <li><a href="#extra-nodes">6. Extra nodes and elision</a></li>
-            <li><a href="#editing">7. Editing node text</a></li>
-            <li><a href="#files">8. File management</a></li>
-            <li><a href="#export">9. Exporting as PNG</a></li>
-            <li><a href="#shortcuts">10. Keyboard shortcuts</a></li>
+            <li><a href="#word-separation">4. Automatic word separation</a></li>
+            <li><a href="#division">5. Division mechanics</a></li>
+            <li><a href="#labels">6. The label system</a></li>
+            <li><a href="#extra-nodes">7. Extra nodes and elision</a></li>
+            <li><a href="#editing">8. Editing node text</a></li>
+            <li><a href="#files">9. File management</a></li>
+            <li><a href="#export">10. Exporting as PNG</a></li>
+            <li><a href="#shortcuts">11. Keyboard shortcuts</a></li>
         </ul>
     </nav>
 
@@ -304,13 +305,85 @@
 
         <h3>Undo and redo</h3>
         <p>
-            M.A.K. maintains a history of up to 50 states. Use the <strong>Undo</strong> and <strong>Redo</strong> buttons in the left panel, or the keyboard shortcuts (see <a href="#shortcuts">section 10</a>), to step back and forth through your editing history.
+            M.A.K. maintains a history of up to 50 states. Use the <strong>Undo</strong> and <strong>Redo</strong> buttons in the left panel, or the keyboard shortcuts (see <a href="#shortcuts">section 11</a>), to step back and forth through your editing history.
         </p>
     </section>
 
     <!-- ═══════════════════════════════════════════ -->
+    <section id="word-separation">
+        <h2>4. Automatic word separation</h2>
+
+        <p>
+            In many languages, a single orthographic word may correspond to more than one grammatical word. For example, Spanish <em>díselo</em> contains a verb stem and two clitic pronouns (<em>dí + se + lo</em>), and English <em>don't</em> is a contraction of <em>do + not</em>. Since syntactic analysis typically operates on grammatical words, M.A.K. includes an automatic word-separation system that detects these cases and offers to expand them <strong>before the tree is created</strong>.
+        </p>
+        <p>
+            This process has two layers: one that applies silently (unambiguous cases) and one that asks for user confirmation (ambiguous cases).
+        </p>
+
+        <h3>Silent expansions</h3>
+        <p>
+            The following transformations are applied automatically when you click <span class="ui-element">Analyse</span>. They require no user action.
+        </p>
+        <p><strong>Spanish:</strong></p>
+        <ul>
+            <li><em>del</em> → <em>de el</em></li>
+            <li><em>al</em> → <em>a el</em></li>
+            <li><em>conmigo</em> → <em>con migo</em>, <em>contigo</em> → <em>con tigo</em>, <em>consigo</em> → <em>con sigo</em></li>
+        </ul>
+        <p><strong>English:</strong></p>
+        <ul>
+            <li>Irregular negatives: <em>won't</em> → <em>will not</em>, <em>can't</em> → <em>can not</em>, <em>shan't</em> → <em>shall not</em>, <em>ain't</em> → <em>am not</em></li>
+            <li>Regular negatives: <em>don't</em> → <em>do not</em>, <em>doesn't</em> → <em>does not</em>, <em>isn't</em> → <em>is not</em>, etc.</li>
+            <li>Unambiguous verb contractions: <em>I'm</em> → <em>I am</em>, <em>you're</em> → <em>you are</em>, <em>they'll</em> → <em>they will</em>, <em>I've</em> → <em>I have</em>, <em>let's</em> → <em>let us</em>, <em>wanna</em> → <em>want to</em></li>
+        </ul>
+
+        <h3>Interactive: Spanish enclitic pronouns</h3>
+        <p>
+            When M.A.K. detects words that appear to contain enclitic pronouns (e.g. <em>díselo</em>, <em>haciéndolo</em>, <em>ponme</em>), it shows a confirmation dialog before creating the tree. Each candidate is displayed with a <strong>checkbox</strong> and a suggested separation:
+        </p>
+        <div class="example-card">
+            <p><strong>☑</strong> <s>díselo</s> → <strong>dí se lo</strong></p>
+            <p><strong>☑</strong> <s>haciéndolo</s> → <strong>haciendo lo</strong></p>
+        </div>
+        <p>
+            All candidates are checked by default. Uncheck any item you do not want to separate, then click <span class="ui-element">Confirm</span> to proceed. Click <span class="ui-element">Back</span> to return to the input field.
+        </p>
+        <p>
+            The detection logic examines each word by stripping potential clitic sequences from the end (<em>me, te, se, le, lo, la, nos, os, les, los, las</em>) and checking whether the remaining stem has the shape of a verb form: an infinitive ending in <em>-r</em>, a gerund ending in <em>-ndo</em>, an imperative with a stress-marking accent, or one of the short imperative stems (<em>di, da, ve, haz, pon, sal, ten, ven</em>). A list of exclusions prevents false positives from common words such as <em>modelo</em>, <em>consuelo</em>, <em>cielo</em>, <em>ejemplo</em>, or <em>aquellos</em>.
+        </p>
+
+        <h3>Interactive: English ambiguous contractions</h3>
+        <p>
+            Two English contractions are genuinely ambiguous and require user intervention:
+        </p>
+        <ul>
+            <li><strong>'s</strong> — can represent <em>is</em>, <em>has</em>, or a possessive (no separation needed).</li>
+            <li><strong>'d</strong> — can represent <em>would</em> or <em>had</em>.</li>
+        </ul>
+        <p>
+            When M.A.K. detects any of these, it displays a disambiguation dialog with a <strong>drop-down menu</strong> for each occurrence:
+        </p>
+        <div class="example-card">
+            <p><strong>she's</strong> → <select disabled style="font-size:0.9em; padding:2px 4px; border-radius:3px;"><option>she is</option><option>she has</option><option>she's (possessive — no change)</option></select></p>
+            <p><strong>he'd</strong> → <select disabled style="font-size:0.9em; padding:2px 4px; border-radius:3px;"><option>he would</option><option>he had</option></select></p>
+        </div>
+        <p>
+            Select the appropriate expansion for each item, then click <span class="ui-element">Apply and analyse</span>. If you prefer to keep all contractions unexpanded, click <span class="ui-element">Skip</span>.
+        </p>
+
+        <h3>Processing order</h3>
+        <p>
+            When both Spanish and English phenomena are present in the same expression, M.A.K. processes them in sequence: first the Spanish clitic dialog (if applicable), then the English contraction dialog (if applicable). Silent expansions from both languages are always applied regardless.
+        </p>
+
+        <div class="note-block">
+            <strong>Note:</strong> The word-separation system only runs when a new diagram is created. It does not affect text that is later edited manually within individual nodes.
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
     <section id="division">
-        <h2>4. Division mechanics</h2>
+        <h2>5. Division mechanics</h2>
 
         <h3>Dividing a node</h3>
         <p>
@@ -340,7 +413,7 @@
 
     <!-- ═══════════════════════════════════════════ -->
     <section id="labels">
-        <h2>5. The label system</h2>
+        <h2>6. The label system</h2>
 
         <p>
             M.A.K.'s label system is designed for SFL analysis, where a single constituent may need to be labelled simultaneously in several functional layers (e.g. transitivity, mood, theme).
@@ -386,7 +459,7 @@
 
     <!-- ═══════════════════════════════════════════ -->
     <section id="extra-nodes">
-        <h2>6. Extra nodes and elision</h2>
+        <h2>7. Extra nodes and elision</h2>
 
         <h3>Adding an extra child node</h3>
         <p>
@@ -403,7 +476,7 @@
 
     <!-- ═══════════════════════════════════════════ -->
     <section id="editing">
-        <h2>7. Editing node text</h2>
+        <h2>8. Editing node text</h2>
         <p>
             M.A.K. allows you to edit the text of any node directly in the tree, without needing to undo and redo divisions. Hover over a node and click the <span class="ui-element">✎</span> button in the bottom-right corner.
         </p>
@@ -417,7 +490,7 @@
 
     <!-- ═══════════════════════════════════════════ -->
     <section id="files">
-        <h2>8. File management</h2>
+        <h2>9. File management</h2>
         <p>
             M.A.K. uses files with the <code>.mak</code> extension to save and load diagrams. These are JSON files that preserve the entire tree structure, all labels, and the original expression.
         </p>
@@ -439,7 +512,7 @@
 
     <!-- ═══════════════════════════════════════════ -->
     <section id="export">
-        <h2>9. Exporting as PNG</h2>
+        <h2>10. Exporting as PNG</h2>
         <p>
             M.A.K. exports the diagram as a <strong>PNG image with a transparent background</strong>, suitable for insertion into documents, slides, or academic papers.
         </p>
@@ -459,7 +532,7 @@
 
     <!-- ═══════════════════════════════════════════ -->
     <section id="shortcuts">
-        <h2>10. Keyboard shortcuts</h2>
+        <h2>11. Keyboard shortcuts</h2>
         <table>
             <thead>
                 <tr>
@@ -512,12 +585,7 @@
     </section>
 
     <footer>
-        <p><strong>Carlos González Vergara</strong> (<a href="mailto:cgonzalv@uc.cl">cgonzalv@uc.cl</a>)</p>
+        <p><strong>Carlos González Vergara</strong> (<a href="/cdn-cgi/l/email-protection#bad9ddd5d4c0dbd6ccfacfd994d9d6"><span class="__cf_email__" data-cfemail="3556525a5b4f5459437540561b5659">[email&#160;protected]</span></a>)</p>
         <p>Departamento de Ciencias del Lenguaje · Pontificia Universidad Católica de Chile</p>
         <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">
-            <img src="https://mirrors.creativecommons.org/presskit/buttons/88x31/svg/by-nc-nd.svg" alt="CC BY-NC-ND 4.0" />
-        </a>
-    </footer>
-</div>
-</body>
-</html>
+            <img src="https://mirrors.creativeco
