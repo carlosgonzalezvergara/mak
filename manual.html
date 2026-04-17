@@ -238,6 +238,7 @@
             <li><a href="#word-separation">4. Automatic word separation</a></li>
             <li><a href="#division">5. Division mechanics</a></li>
             <li><a href="#labels">6. The label system</a></li>
+            <li><a href="#label-catalogue">6a. The label catalogue</a></li>
             <li><a href="#extra-nodes">7. Extra nodes and elision</a></li>
             <li><a href="#editing">8. Editing node text</a></li>
             <li><a href="#files">9. File management</a></li>
@@ -267,7 +268,7 @@
             M.A.K. uses a <strong>split layout</strong> with two areas:
         </p>
         <ul>
-            <li><strong>Left panel</strong> — a narrow sidebar containing the logo, the <span class="ui-element">✦ New Diagram</span> button, file operations (Save Project, Load Project, Download as Image), history controls (Undo, Redo), zoom controls, and a collapsible quick-reference guide.</li>
+            <li><strong>Left panel</strong> — a narrow sidebar containing the logo, the <span class="ui-element">✦ New Diagram</span> button, file operations (Save Project, Load Project, Download as Image), a <span class="ui-element">Labels</span> section for managing the label catalogue, history controls (Undo, Redo), zoom controls, and a collapsible quick-reference guide.</li>
             <li><strong>Canvas</strong> — the main area where the tree diagram is displayed and edited. When no diagram is active, the canvas shows a placeholder message.</li>
         </ul>
 
@@ -458,7 +459,61 @@
     </section>
 
     <!-- ═══════════════════════════════════════════ -->
-    <section id="extra-nodes">
+    <section id="label-catalogue">
+        <h2>6a. The label catalogue</h2>
+
+        <p>
+            M.A.K. allows each user to define a personal <strong>label catalogue</strong> — a set of labels that become available as quick-select options whenever a label field is being edited. This is particularly useful in teaching contexts or when working with a fixed analytical framework, as it reduces typing and minimises inconsistencies across diagrams.
+        </p>
+
+        <h3>Setting up the catalogue</h3>
+        <p>
+            Click <span class="ui-element">Set Up Labels</span> in the <em>Labels</em> section of the left panel. A dialog box will open with the following elements:
+        </p>
+        <ul>
+            <li>A <strong>text area</strong> where you can type or paste your labels, separated by commas, line breaks, or both.</li>
+            <li>A <strong>live preview</strong> below the text area that shows how the labels will look as selectable pills, updating as you type.</li>
+            <li>A <span class="ui-element">Save</span> button to confirm and apply the catalogue.</li>
+            <li>A <span class="ui-element">Cancel</span> button to close the dialog without making changes.</li>
+            <li>A <span class="ui-element">Clear all</span> button (shown only when a catalogue already exists) to delete all stored labels.</li>
+        </ul>
+
+        <div class="example-card">
+            <p><strong>Example input</strong> (comma-separated):</p>
+            <p><code>NG, NV, Nadj, Nadv, Nprep, S, P, O, Cs, Co, A</code></p>
+            <p><strong>Example input</strong> (line-separated):</p>
+            <p><code>Actor<br/>Process<br/>Goal<br/>Beneficiary<br/>Circumstance</code></p>
+        </div>
+
+        <p>
+            Both formats — and combinations of them — are accepted. Leading and trailing spaces around each label are stripped automatically.
+        </p>
+
+        <h3>Using the catalogue while editing</h3>
+        <p>
+            Once a catalogue is active, a <strong>dropdown panel</strong> appears automatically whenever you click on a label field to edit it. The panel displays all catalogue labels as clickable pills. Click any pill to insert that label immediately — the field closes and the value is confirmed.
+        </p>
+        <p>
+            As you type in the label field, the pill list narrows in real time to show only those labels that contain the characters you have typed (case-insensitive filtering). This makes it easy to locate the right label in a large catalogue.
+        </p>
+        <p>
+            The dropdown also includes a <strong>clear label</strong> option at the top, which empties the field in one click without having to select and delete the text manually.
+        </p>
+        <p>
+            You can always type freely in the label field, whether or not a catalogue is loaded. The catalogue is an aid, not a constraint — any custom text can still be entered directly.
+        </p>
+
+        <h3>Persistence across sessions</h3>
+        <p>
+            The catalogue is stored in the browser's <strong>local storage</strong> under the key <code>mak-labels</code>. It persists automatically across sessions: if you close the tab or browser and return later, your catalogue will be available without any further action. The button in the panel reflects the current state, showing <span class="ui-element">Labels (N)</span> — where <em>N</em> is the number of labels — when a catalogue is loaded.
+        </p>
+
+        <div class="note-block">
+            <strong>Note:</strong> The catalogue is browser-specific. If you use M.A.K. on a different browser or device, you will need to re-enter your labels. Clearing browser site data will also erase the stored catalogue.
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
         <h2>7. Extra nodes and elision</h2>
 
         <h3>Adding an extra child node</h3>
