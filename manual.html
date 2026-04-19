@@ -511,6 +511,23 @@
         <div class="note-block">
             <strong>Note:</strong> The catalogue is browser-specific. If you use M.A.K. on a different browser or device, you will need to re-enter your labels. Clearing browser site data will also erase the stored catalogue.
         </div>
+
+        <h3>Saving and loading the catalogue as a file</h3>
+        <p>
+            Although the catalogue persists automatically in the browser, you may want to back it up, share it with others, or transfer it to a different device or browser. The Label Catalogue dialog includes two buttons for this purpose, located below the main action buttons:
+        </p>
+        <ul>
+            <li><span class="ui-element">Save to file</span> — downloads the current catalogue as a plain-text file (<code>mak-labels.txt</code>), with one label per line. This button is disabled when the catalogue is empty.</li>
+            <li><span class="ui-element">Load from file</span> — opens a file picker and loads a previously saved <code>.txt</code> catalogue. The contents of the file are placed directly into the text area, where you can review or edit them before clicking <span class="ui-element">Save</span> to apply.</li>
+        </ul>
+        <p>
+            The <code>.txt</code> format is deliberately simple: you can open the file in any text editor, add or remove labels, and reload it into M.A.K. The parser accepts both comma-separated and line-separated formats, so either layout in the file will be read correctly.
+        </p>
+
+        <div class="example-card">
+            <p><strong>Example <code>mak-labels.txt</code> (line-separated):</strong></p>
+            <p><code>Actor<br/>Process<br/>Goal<br/>Beneficiary<br/>Circumstance</code></p>
+        </div>
     </section>
 
     <!-- ═══════════════════════════════════════════ -->
