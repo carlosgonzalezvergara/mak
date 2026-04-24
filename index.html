@@ -931,13 +931,49 @@
         .btn-outline:hover { background-color: var(--parchment-deep); border-color: var(--ink-muted); }
 
         /* ===========================================
-           FOOTER (inside panel)
-           =========================================== */
-        .footer { text-align: center; color: var(--ink-muted); font-size: 11px; padding: 8px 0 0; }
+        FOOTER ACTUALIZADO (inside panel)
+        =========================================== */
+        .footer { 
+            text-align: center; 
+            color: var(--ink-muted); 
+            font-size: 10.5px; 
+            padding: 15px 0 0; 
+            border-top: 1px solid var(--rule);
+        }
+
+        .footer-logos {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .footer-logo-brand {
+            height: 15px; /* Ligeramente más pequeño para el panel lateral */
+            width: auto;
+            opacity: 0.6; /* Más integrado con la estética de "tinta" */
+            transition: opacity 0.2s;
+            cursor: pointer;
+        }
+
+        .footer-logo-brand:hover {
+            opacity: 1;
+        }
+
+        .cc-logo { 
+            height: 24px; /* Reducido para que coincida con tu logo */
+            opacity: 0.6; 
+            transition: opacity 0.2s; 
+            display: block; 
+        }
+
+        .cc-logo:hover { 
+            opacity: 1; 
+        }
+
         .footer a { color: var(--ink-light); text-decoration: none; }
         .footer a:hover { text-decoration: underline; }
-        .footer img { opacity: 0.6; transition: opacity 0.2s; display: block; margin: 6px auto 0; height: 20px; }
-        .footer img:hover { opacity: 1; }
 
         /* ===========================================
            RESPONSIVE
@@ -2631,10 +2667,30 @@
                         <input type="file" ref={fileInputRef} style={{display:'none'}} accept=".mak,.ent,.json,application/json,text/plain,*/*" onChange={handleLoadJSON} />
 
                         <footer className="footer">
-                            <p>Carlos González Vergara<br/>(<strong><a href="mailto:cgonzalv@uc.cl">cgonzalv@uc.cl</a></strong>)</p>
-                            <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">
-                                <img src="https://mirrors.creativecommons.org/presskit/buttons/88x31/svg/by-nc-nd.svg" alt="CC BY-NC-ND 4.0" />
-                            </a>
+                            <div className="footer-logos">
+                                {/* Tu nuevo logo con enlace a cgv.tools */}
+                                <a href="https://cgv.tools" target="_blank" rel="noopener noreferrer">
+                                    <img 
+                                        src="cgv-tools.png" 
+                                        alt="cgv.tools" 
+                                        className="footer-logo-brand" 
+                                    />
+                                </a>
+
+                                {/* Logo de Creative Commons */}
+                                <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">
+                                    <img 
+                                        src="https://mirrors.creativecommons.org/presskit/buttons/88x31/svg/by-nc-nd.svg" 
+                                        alt="CC BY-NC-ND 4.0" 
+                                        className="cc-logo"
+                                    />
+                                </a>
+                            </div>
+
+                            <p> 
+                                Carlos González Vergara<br/>
+                                (<strong><a href="mailto:cgonzalv@uc.cl">cgonzalv@uc.cl</a></strong>)
+                            </p>
                         </footer>
                     </div>
 
