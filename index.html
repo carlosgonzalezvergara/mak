@@ -1694,74 +1694,134 @@
             // ===========================================
             // GUARDAR
             // ===========================================
-            const handleSaveJSON = useCallback(() => {
-                if (!tree) return;
-                const blob = new Blob([JSON.stringify({ sentence, tree }, null, 2)], { type: 'application/json' });
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = getFileName('json');
-                a.click();
-                localStorage.removeItem('mak-autosave');
-                setLastSaved(null);
-            }, [tree, sentence]);
-
-            // ===========================================
-            // AUTO-GUARDADO
-            // ===========================================
-            const performAutoSave = useCallback(() => {
-                if (!tree || isUndoRedo.current) return;
-                setIsSaving(true);
-                const data = { sentence, tree, divisionMode, selectedCuts, timestamp: new Date().toISOString(), version: '1.0' };
-                try {
-                    localStorage.setItem('mak-autosave', JSON.stringify(data));
-                    setLastSaved(new Date());
-                    setTimeout(() => setIsSaving(false), 500);
-                } catch (err) {
-                    console.error('Error auto-saving:', err);
-                    setIsSaving(false);
-                }
-            }, [sentence, tree, divisionMode, selectedCuts]);
+            const AUTOSAVE_KEY = 'mak-autosave';
+            const AUTOSAVE_VERSION = '1.1';
 
             const autoSaveDebounced = useRef(null);
             if (!autoSaveDebounced.current) {
                 autoSaveDebounced.current = debounce((saveFn) => saveFn(), 3000);
             }
 
+            const buildAutoSaveData = useCallback(() => ({
+                sentence,
+                tree,
+                divisionMode,
+                selectedCuts,
+                timestamp: new Date().toISOString(),
+                version: AUTOSAVE_VERSION
+            }), [sentence, tree, divisionMode, selectedCuts]);
+
+            const writeAutoSave = useCallback(({ silent = false } = {}) => {
+                if (!tree) return false;
+                const data = buildAutoSaveData();
+                try {
+                    if (!silent) setIsSaving(true);
+                    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(data));
+                    setLastSaved(new Date(data.timestamp));
+                    if (!silent) setTimeout(() => setIsSaving(false), 500);
+                    return true;
+                } catch (err) {
+                    console.error('Error auto-saving:', err);
+                    setIsSaving(false);
+                    return false;
+                }
+            }, [tree, buildAutoSaveData]);
+
+            const clearAutoSave = useCallback(() => {
+                autoSaveDebounced.current?.cancel?.();
+                localStorage.removeItem(AUTOSAVE_KEY);
+                setLastSaved(null);
+                setIsSaving(false);
+            }, []);
+
+            const handleSaveJSON = useCallback(() => {
+                if (!tree) return;
+
+                // Flush any pending autosave and write the current state.
+                // The backup is NOT cleared: this avoids losing the restoration
+                // point if the user closes the tab right after saving manually.
+                autoSaveDebounced.current?.flush?.();
+                writeAutoSave({ silent: true });
+
+                const blob = new Blob([JSON.stringify({ sentence, tree }, null, 2)], { type: 'application/json' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = getFileName('json');
+                a.click();
+                URL.revokeObjectURL(a.href);
+            }, [tree, sentence, writeAutoSave]);
+
+            // ===========================================
+            // AUTO-GUARDADO
+            // ===========================================
+            const performAutoSave = useCallback(() => {
+                // Autosave should reflect the user's visible state, even after undo/redo.
+                writeAutoSave();
+            }, [writeAutoSave]);
+
             useEffect(() => {
-                if (tree && !isUndoRedo.current) {
+                if (tree) {
                     autoSaveDebounced.current(performAutoSave);
                 }
             }, [sentence, tree, divisionMode, selectedCuts, performAutoSave]);
 
+            // Emergency save before closing, reloading, or hiding the tab.
+            useEffect(() => {
+                const saveImmediately = () => {
+                    if (!tree) return;
+                    autoSaveDebounced.current?.cancel?.();
+                    writeAutoSave({ silent: true });
+                };
+                const handleVisibilityChange = () => {
+                    if (document.visibilityState === 'hidden') saveImmediately();
+                };
+                window.addEventListener('beforeunload', saveImmediately);
+                document.addEventListener('visibilitychange', handleVisibilityChange);
+                return () => {
+                    window.removeEventListener('beforeunload', saveImmediately);
+                    document.removeEventListener('visibilitychange', handleVisibilityChange);
+                };
+            }, [tree, writeAutoSave]);
+
             // Restore on mount
             useEffect(() => {
-                const saved = localStorage.getItem('mak-autosave');
+                const saved = localStorage.getItem(AUTOSAVE_KEY);
                 if (!saved) return;
                 try {
                     const data = JSON.parse(saved);
+                    if (!data || !data.tree) {
+                        clearAutoSave();
+                        return;
+                    }
                     const savedDate = new Date(data.timestamp);
-                    const minutesAgo = Math.round((Date.now() - savedDate.getTime()) / 60000);
-                    const message = minutesAgo < 1
+                    const hasValidDate = !Number.isNaN(savedDate.getTime());
+                    const minutesAgo = hasValidDate
+                        ? Math.max(0, Math.round((Date.now() - savedDate.getTime()) / 60000))
+                        : null;
+                    const message = minutesAgo === null
                         ? 'Unsaved work found.\n\nDo you want to continue where you left off?'
-                        : `Unsaved work found from ${minutesAgo} minute${minutesAgo === 1 ? '' : 's'} ago.\n\nDo you want to continue where you left off?`;
+                        : minutesAgo < 1
+                            ? 'Unsaved work found.\n\nDo you want to continue where you left off?'
+                            : `Unsaved work found from ${minutesAgo} minute${minutesAgo === 1 ? '' : 's'} ago.\n\nDo you want to continue where you left off?`;
                     if (confirm(message)) {
                         isUndoRedo.current = true;
                         setSentence(data.sentence || '');
                         setTree(data.tree || null);
                         setDivisionMode(data.divisionMode ?? null);
                         setSelectedCuts(Array.isArray(data.selectedCuts) ? data.selectedCuts : []);
-                        setHistory([]);
-                        setHistoryIndex(-1);
+                        // The restored state becomes the first history point.
+                        setHistory(data.tree ? [JSON.stringify(data.tree)] : []);
+                        setHistoryIndex(data.tree ? 0 : -1);
+                        if (hasValidDate) setLastSaved(savedDate);
                         setTimeout(() => { isUndoRedo.current = false; }, 0);
                     } else {
-                        localStorage.removeItem('mak-autosave');
-                        setLastSaved(null);
+                        clearAutoSave();
                     }
                 } catch (err) {
                     console.error('Error restoring auto-save:', err);
-                    localStorage.removeItem('mak-autosave');
+                    clearAutoSave();
                 }
-            }, []);
+            }, [clearAutoSave]);
 
             // ===========================================
             // ATAJOS DE TECLADO
@@ -1949,8 +2009,7 @@
                         setTree(migratedTree);
                         setHistory([JSON.stringify(migratedTree)]);
                         setHistoryIndex(0);
-                        localStorage.removeItem('mak-autosave');
-                        setLastSaved(null);
+                        clearAutoSave();
                     } catch (error) {
                         alert('Error reading file.\n\nDetail: ' + error.message);
                     }
