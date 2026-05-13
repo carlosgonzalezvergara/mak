@@ -279,10 +279,10 @@
 
         <h3>Auto-save</h3>
         <p>
-            M.A.K. automatically saves your work to the browser's local storage every few seconds. If you close the tab or browser and return later, M.A.K. will offer to restore your last session. This auto-save is stored locally only — nothing is uploaded.
+            M.A.K. automatically saves your work to the browser's local storage every few seconds. If you close the tab or browser and return later, M.A.K. shows a <strong>Restore previous session</strong> dialog indicating how long ago the backup was made and offering two options: <strong>Continue</strong> (loads the backup so you can pick up where you left off) or <strong>Discard</strong> (clears the backup and starts with a fresh canvas). This dialog requires an explicit choice — it cannot be dismissed by clicking outside. Press <span class="key-tip">Enter</span> to continue or <span class="key-tip">Esc</span> to discard. Auto-saved data is stored locally only; nothing is uploaded.
         </p>
         <div class="note-block">
-            <strong>Note:</strong> Auto-saved data may be lost if you clear your browser's site data. For permanent storage, use the <strong>Save</strong> function to download a <code>.mak</code> file.
+            <strong>Note:</strong> Auto-saved data may be lost if you clear your browser's site data. For permanent storage, use the <strong>Save Project</strong> function to download a <code>.mak</code> file.
         </div>
     </section>
 
@@ -569,7 +569,7 @@
 
         <h3>Save Project</h3>
         <p>
-            Click <span class="ui-element">Save Project</span> in the left panel (or press <span class="key-tip">Ctrl</span>+<span class="key-tip">S</span> / <span class="key-tip">⌘</span>+<span class="key-tip">S</span>). The file is downloaded to your computer. The filename is generated automatically from the first words of the expression.
+            Click <span class="ui-element">Save Project</span> in the left panel (or press <span class="key-tip">Ctrl</span>+<span class="key-tip">S</span> / <span class="key-tip">⌘</span>+<span class="key-tip">S</span>) to open the save dialog. The dialog suggests a filename generated automatically from the first words of the expression; you can edit it freely or accept the default. The <code>.mak</code> extension is added automatically. Press <span class="key-tip">Enter</span> to confirm or <span class="key-tip">Esc</span> (or click outside the dialog) to cancel.
         </p>
 
         <h3>Load Project</h3>
@@ -581,10 +581,18 @@
     <section id="export">
         <h2>10. Download as Image</h2>
         <p>
-            M.A.K. exports the diagram as a <strong>PNG image with a transparent background</strong>, suitable for insertion into documents, slides, or academic papers.
+            M.A.K. exports the diagram as a high-resolution PNG image, suitable for insertion into documents, slides, or academic papers. Click <span class="ui-element">Download as Image</span> in the left panel to open the export dialog.
         </p>
         <p>
-            Click <span class="ui-element">Export as PNG</span> in the left panel.
+            As with saving, the dialog suggests a filename generated from the first words of the expression. Below the filename, a <strong>Background</strong> selector lets you choose between:
+        </p>
+        <ul>
+            <li><strong>White</strong> (default): produces a PNG with a solid white background. This is the safest choice for embedding the image in documents, slides, or printed materials.</li>
+            <li><strong>Transparent</strong>: produces a PNG with no background. Useful when you want to compose the diagram over a coloured slide background or layer it with other graphics.</li>
+        </ul>
+        <p>
+            Press <span class="key-tip">Enter</span> to confirm or <span class="key-tip">Esc</span> (or click outside the dialog) to cancel.
+        </p>
     </section>
 
     <!-- ═══════════════════════════════════════════ -->
