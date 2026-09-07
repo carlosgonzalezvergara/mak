@@ -866,6 +866,43 @@
         .ipa-char-btn:active { transform: scale(0.95); }
 
         /* ===========================================
+           LABEL FORMATTING CONTROLS (SIDE PANEL)
+           =========================================== */
+        .fmt-controls { display: flex; flex-direction: column; gap: 6px; }
+        .fmt-btn-row { display: flex; flex-wrap: wrap; gap: 3px; }
+        .fmt-btn {
+            min-width: 26px; height: 26px; padding: 0 5px;
+            border: 1px solid var(--rule-light); border-radius: 4px;
+            background: white; cursor: pointer;
+            font-family: 'Source Sans 3', sans-serif; font-size: 12px; color: var(--ink);
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s ease;
+        }
+        .fmt-btn:hover:not(:disabled) { background: var(--accent); color: white; border-color: var(--accent); }
+        .fmt-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+        .fmt-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .fmt-sym-toggle {
+            width: 100%; height: 26px; gap: 6px;
+            font-size: 11px; font-weight: 600; letter-spacing: 0.03em;
+        }
+        .fmt-hint {
+            font-size: 10px; color: var(--ink-muted); font-style: italic;
+            line-height: 1.35; padding: 0 2px;
+        }
+        .fmt-sym-panel {
+            background: white; border: 1px solid var(--rule); border-radius: 6px;
+            padding: 7px; max-height: 240px; overflow-y: auto;
+            box-shadow: inset 0 1px 3px rgba(44,36,32,0.04);
+        }
+        .fmt-sym-panel .ipa-char-btn { width: 24px; height: 24px; font-size: 13px; }
+        .fmt-sym-panel .ipa-char-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+        .fmt-sym-panel .ipa-char-btn:disabled:hover {
+            background: var(--parchment); color: var(--ink);
+            border-color: var(--rule-light); transform: none;
+        }
+        .fmt-sym-panel .ipa-category-title { margin-top: 7px; }
+
+        /* ===========================================
            CLITIC SUGGESTION MODAL
            =========================================== */
         .clitic-list { list-style: none; padding: 0; margin: 0 0 14px; }
@@ -1319,6 +1356,19 @@
             { title: 'Brackets & Delimiters', chars: '/ [ ] ⟨ ⟩ { }'.split(' ') },
         ];
 
+        // Símbolos habituales en el análisis sistémico-funcional, disponibles al editar
+        // etiquetas. Para añadir, quitar o reordenar, basta con editar este array: la
+        // interfaz se construye a partir de él, igual que el panel de AFI.
+        const SFL_SYMBOLS = [
+            { title: 'Hypotaxis', chars: 'α β γ δ ε ζ η θ'.split(' ') },
+            { title: 'Expansion & Projection', chars: ['=', '+', '×', '"', "'"] },
+            { title: 'Structure & Boundaries', chars: ['^', '//', '/', '‖', '|', '⁀', '≡'] },
+            { title: 'Embedding & Enclosure', chars: ['[', ']', '[[', ']]', '«', '»', '⟨', '⟩', '⟪', '⟫'] },
+            { title: 'Greek – Lowercase', chars: 'α β γ δ ε ζ η θ ι κ λ μ ν ξ ο π ρ σ ς τ υ φ χ ψ ω'.split(' ') },
+            { title: 'Greek – Uppercase', chars: 'Γ Δ Θ Λ Ξ Π Σ Φ Ψ Ω'.split(' ') },
+            { title: 'Arrows & Other', chars: '→ ⇒ ↔ ↗ ↘ ↑ ↓ Ø ∅ ≠ ≈'.split(' ') },
+        ];
+
         const computeTextScale = (zoomLevel) => {
             const z = zoomLevel / 100;
             if (z >= 1) return 1;
@@ -1592,6 +1642,68 @@
             // Etiqueta en edición
             const [editingLabel, setEditingLabel] = useState(null);
             const [editingNode, setEditingNode] = useState(null);
+
+            // ===========================================
+            // FORMATO Y SÍMBOLOS EN ETIQUETAS
+            // ===========================================
+            // Los controles viven en el panel lateral y actúan sobre la etiqueta que
+            // está en edición. En vez de pasar un ref por props hasta cada etiqueta,
+            // guardamos el nodo DOM del input activo y lo recuperamos desde
+            // document.activeElement si se perdió (las etiquetas se desmontan al
+            // navegar con Tab). Es el patrón que ya usa Kilmer.
+            const activeLabelInputRef = useRef(null);
+            const [showSymbolPanel, setShowSymbolPanel] = useState(false);
+
+            const getActiveLabelInput = () => {
+                let target = activeLabelInputRef.current;
+                const stale = !target || target.tagName !== 'INPUT' || !document.contains(target);
+                if (stale) {
+                    const el = document.activeElement;
+                    target = (el && el.tagName === 'INPUT' && el.classList.contains('label-input')) ? el : null;
+                    activeLabelInputRef.current = target;
+                }
+                return target;
+            };
+
+            // Escribe en el input con el setter nativo y despacha un evento 'input'.
+            // Es necesario porque el input es controlado por React: asignar .value
+            // directamente no actualizaría el estado del árbol.
+            const writeToLabelInput = (target, nextValue, selStart, selEnd) => {
+                const nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                nativeSetter.call(target, nextValue);
+                target.dispatchEvent(new Event('input', { bubbles: true }));
+                target.focus();
+                try { target.setSelectionRange(selStart, selEnd); } catch (_) {}
+            };
+
+            const insertSymbolInLabel = (str) => {
+                const target = getActiveLabelInput();
+                if (!target) return;
+                const start = (typeof target.selectionStart === 'number') ? target.selectionStart : target.value.length;
+                const end = (typeof target.selectionEnd === 'number') ? target.selectionEnd : target.value.length;
+                const next = target.value.slice(0, start) + str + target.value.slice(end);
+                const caret = start + str.length;
+                writeToLabelInput(target, next, caret, caret);
+            };
+
+            // Envuelve la selección con marcadores. Sin selección, deja el cursor
+            // entre los marcadores para escribir directamente.
+            const wrapLabelSelection = (left, right = left) => {
+                const target = getActiveLabelInput();
+                if (!target) return;
+                const start = (typeof target.selectionStart === 'number') ? target.selectionStart : target.value.length;
+                const end = (typeof target.selectionEnd === 'number') ? target.selectionEnd : target.value.length;
+                const before = target.value.slice(0, start);
+                const sel = target.value.slice(start, end);
+                const after = target.value.slice(end);
+                const next = before + left + sel + right + after;
+                if (sel) {
+                    writeToLabelInput(target, next, start + left.length, start + left.length + sel.length);
+                } else {
+                    const caret = start + left.length;
+                    writeToLabelInput(target, next, caret, caret);
+                }
+            };
 
             // ===========================================
             // CATÁLOGO DE ETIQUETAS DE USUARIO
@@ -1965,7 +2077,9 @@
                     { regex: /\*\*([^*]+)\*\*/, style: { fontWeight: 'bold' } },
                     { regex: /\*([^*]+)\*/, style: { fontStyle: 'italic' } },
                     { regex: /__([^_]+)__/, style: { fontSize: '0.75em', verticalAlign: 'super' } },
-                    { regex: /_([^_]+)_/, style: { fontSize: '0.75em', verticalAlign: 'sub' } }
+                    { regex: /_([^_]+)_/, style: { fontSize: '0.75em', verticalAlign: 'sub' } },
+                    { regex: /%([^%]+)%/, style: { fontVariant: 'small-caps', textTransform: 'lowercase' } },
+                    { regex: /~([^~]+)~/, style: { textDecoration: 'underline' } }
                 ];
                 while (remaining.length > 0) {
                     let earliestMatch = null;
@@ -1999,7 +2113,9 @@
                     { regex: /\*\*([^*]+)\*\*/, tag: 'strong', style: '' },
                     { regex: /\*([^*]+)\*/, tag: 'em', style: '' },
                     { regex: /__([^_]+)__/, tag: 'sup', style: 'font-size: 0.75em;' },
-                    { regex: /_([^_]+)_/, tag: 'sub', style: 'font-size: 0.75em;' }
+                    { regex: /_([^_]+)_/, tag: 'sub', style: 'font-size: 0.75em;' },
+                    { regex: /%([^%]+)%/, tag: 'span', style: 'font-variant: small-caps; text-transform: lowercase;' },
+                    { regex: /~([^~]+)~/, tag: 'u', style: '' }
                 ];
                 while (remaining.length > 0) {
                     let earliestMatch = null;
@@ -2651,6 +2767,7 @@
                             <input 
                                 type="text" 
                                 value={value} 
+                                ref={(el) => { if (el) activeLabelInputRef.current = el; }}
                                 onChange={(e) => { setValue(e.target.value); }}
                                 onBlur={handleBlur} 
                                 onKeyDown={(e) => {
@@ -3060,6 +3177,64 @@
                             </div>
                         </div>
 
+                        {/* LABEL FORMATTING */}
+                        <div>
+                            <div className="panel-section-title">Label Formatting</div>
+                            <div className="fmt-controls">
+                                {/* onMouseDown + preventDefault en todos los botones: así el
+                                    clic no le roba el foco a la etiqueta que se está editando. */}
+                                <div className="fmt-btn-row">
+                                    <button type="button" className="fmt-btn" disabled={!editingLabel} style={{fontWeight: 700}} title="Bold (**…**)"
+                                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); if (editingLabel) wrapLabelSelection('**'); }}>B</button>
+                                    <button type="button" className="fmt-btn" disabled={!editingLabel} style={{fontStyle: 'italic'}} title="Italic (*…*)"
+                                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); if (editingLabel) wrapLabelSelection('*'); }}>I</button>
+                                    <button type="button" className="fmt-btn" disabled={!editingLabel} style={{fontVariant: 'small-caps', textTransform: 'lowercase'}} title="Small caps (%…%)"
+                                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); if (editingLabel) wrapLabelSelection('%'); }}>SC</button>
+                                    <button type="button" className="fmt-btn" disabled={!editingLabel} title="Subscript (_…_)"
+                                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); if (editingLabel) wrapLabelSelection('_'); }}><span>X<sub style={{fontSize:'0.7em'}}>2</sub></span></button>
+                                    <button type="button" className="fmt-btn" disabled={!editingLabel} title="Superscript (__…__)"
+                                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); if (editingLabel) wrapLabelSelection('__'); }}><span>X<sup style={{fontSize:'0.7em'}}>2</sup></span></button>
+                                    <button type="button" className="fmt-btn" disabled={!editingLabel} style={{textDecoration: 'underline'}} title="Underline (~…~)"
+                                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); if (editingLabel) wrapLabelSelection('~'); }}>U</button>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className={`fmt-btn fmt-sym-toggle ${showSymbolPanel ? 'active' : ''}`}
+                                    title="Systemic functional symbols"
+                                    onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); setShowSymbolPanel(s => !s); }}
+                                >
+                                    <span style={{fontSize: '14px', lineHeight: 1}}>α</span> Symbols {showSymbolPanel ? '▾' : '▸'}
+                                </button>
+
+                                {showSymbolPanel && (
+                                    <div className="fmt-sym-panel" onMouseDown={(e) => e.preventDefault()}>
+                                        {SFL_SYMBOLS.map((cat) => (
+                                            <div key={cat.title}>
+                                                <div className="ipa-category-title">{cat.title}</div>
+                                                <div className="ipa-grid">
+                                                    {cat.chars.map((ch, j) => (
+                                                        <button
+                                                            key={j}
+                                                            type="button"
+                                                            className="ipa-char-btn"
+                                                            disabled={!editingLabel}
+                                                            title={ch}
+                                                            onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); if (editingLabel) insertSymbolInLabel(ch); }}
+                                                        >{ch}</button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {!editingLabel && (
+                                    <div className="fmt-hint">Click a label to start editing, then use these controls.</div>
+                                )}
+                            </div>
+                        </div>
+
                         {/* HISTORY */}
                         <div>
                             <div className="panel-section-title">History</div>
@@ -3122,7 +3297,10 @@
                                             <li><code>**text**</code> for <strong>bold</strong></li>
                                             <li><code>*text*</code> for <em>italic</em></li>
                                             <li><code>_text_</code> for <sub>subscript</sub></li>
-                                            <li style={{ marginBottom: '10px' }}><code>__text__</code> for <sup>superscript</sup></li>
+                                            <li><code>__text__</code> for <sup>superscript</sup></li>
+                                            <li><code>%text%</code> for <span style={{fontVariant: 'small-caps', textTransform: 'lowercase'}}>small caps</span></li>
+                                            <li><code>~text~</code> for <u>underline</u></li>
+                                            <li style={{ marginBottom: '10px' }}>While editing a label, use <strong>Label Formatting</strong> in the panel to apply these, or open <code>α Symbols</code> to insert Greek letters and systemic functional notation.</li>
                                         </ul>
                                     </div>
                                 </div>

@@ -239,6 +239,7 @@
             <li><a href="#division">5. Division mechanics</a></li>
             <li><a href="#labels">6. The label system</a></li>
             <li><a href="#label-catalogue">6a. The label catalogue</a></li>
+            <li><a href="#label-formatting">6b. Label formatting and symbols</a></li>
             <li><a href="#extra-nodes">7. Extra nodes and elision</a></li>
             <li><a href="#editing">8. Editing node text</a></li>
             <li><a href="#files">9. File management</a></li>
@@ -268,7 +269,7 @@
             M.A.K. uses a <strong>split layout</strong> with two areas:
         </p>
         <ul>
-            <li><strong>Left panel</strong> — a narrow sidebar containing the logo, the <span class="ui-element">✦ New Diagram</span> button, file operations (Save Project, Load Project, Download as Image), a <span class="ui-element">Labels</span> section for managing the label catalogue, history controls (Undo, Redo), zoom controls, and a collapsible quick-reference guide.</li>
+            <li><strong>Left panel</strong> — a narrow sidebar containing the logo, the <span class="ui-element">✦ New Diagram</span> button, file operations (Save Project, Load Project, Download as Image), a <span class="ui-element">Labels</span> section for managing the label catalogue, a <span class="ui-element">Label Formatting</span> section with text-formatting buttons and the symbol picker, history controls (Undo, Redo), zoom controls, and a collapsible quick-reference guide.</li>
             <li><strong>Canvas</strong> — the main area where the tree diagram is displayed and edited. When no diagram is active, the canvas shows a placeholder message.</li>
         </ul>
 
@@ -443,7 +444,7 @@
 
         <h3>Formatting within labels</h3>
         <p>
-            Labels support inline text formatting using simple markup:
+            Labels support inline text formatting using simple markup. You can type the markup directly, or apply it with the buttons in the <span class="ui-element">Label Formatting</span> panel (see <a href="#label-formatting">section 6b</a>).
         </p>
         <table>
             <thead>
@@ -454,8 +455,13 @@
                 <tr><td><code>*text*</code></td><td><em>Theme</em></td><td><code>*Theme*</code></td></tr>
                 <tr><td><code>_text_</code></td><td>Participant<sub>1</sub></td><td><code>Participant_1_</code></td></tr>
                 <tr><td><code>__text__</code></td><td>NP<sup>2</sup></td><td><code>NP__2__</code></td></tr>
+                <tr><td><code>%text%</code></td><td><span style="font-variant: small-caps; text-transform: lowercase;">Theme</span></td><td><code>%Theme%</code></td></tr>
+                <tr><td><code>~text~</code></td><td><u>Given</u></td><td><code>~Given~</code></td></tr>
             </tbody>
         </table>
+        <p>
+            The same markup set is used in <strong>Telperion</strong>, so formatting habits transfer between the two tools. All six styles are preserved in the exported PNG image.
+        </p>
     </section>
 
     <!-- ═══════════════════════════════════════════ -->
@@ -531,6 +537,66 @@
     </section>
 
     <!-- ═══════════════════════════════════════════ -->
+    <section id="label-formatting">
+        <h2>6b. Label formatting and symbols</h2>
+
+        <p>
+            The <span class="ui-element">Label Formatting</span> section of the left panel provides button-based access to text formatting and to the special characters used in systemic functional notation. Its controls act on the label that is currently being edited: click a label to enter edit mode, and the controls become active. While no label is being edited, the buttons are greyed out and a reminder is shown in their place.
+        </p>
+        <div class="note-block">
+            <strong>Note:</strong> Clicking any of these controls does not close the label you are editing. You can apply several styles and insert several characters in succession without leaving edit mode, and the text cursor stays where you left it.
+        </div>
+
+        <h3>Formatting buttons</h3>
+        <p>
+            Each button applies the corresponding markup described in <a href="#labels">section 6</a>. If text is selected, the markup wraps the selection and the selection is preserved, so you can apply a second style on top of the first. If nothing is selected, the markup is inserted with the cursor placed between the two markers, ready for you to type.
+        </p>
+        <table>
+            <thead>
+                <tr><th>Button</th><th>Applies</th><th>Result</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><span class="ui-element">B</span></td><td><code>**…**</code></td><td><strong>Bold</strong></td></tr>
+                <tr><td><span class="ui-element">I</span></td><td><code>*…*</code></td><td><em>Italic</em></td></tr>
+                <tr><td><span class="ui-element">SC</span></td><td><code>%…%</code></td><td><span style="font-variant: small-caps; text-transform: lowercase;">Small caps</span></td></tr>
+                <tr><td><span class="ui-element">X₂</span></td><td><code>_…_</code></td><td>Sub<sub>script</sub></td></tr>
+                <tr><td><span class="ui-element">X²</span></td><td><code>__…__</code></td><td>Super<sup>script</sup></td></tr>
+                <tr><td><span class="ui-element">U</span></td><td><code>~…~</code></td><td><u>Underline</u></td></tr>
+            </tbody>
+        </table>
+
+        <h3>The symbol picker</h3>
+        <p>
+            Click <span class="ui-element">α Symbols</span> to expand the picker. Each character is inserted at the cursor position in the label being edited. The picker stays open as you move between labels, so it can be left expanded for the whole session.
+        </p>
+        <p>
+            The characters are grouped into the following categories:
+        </p>
+        <table>
+            <thead>
+                <tr><th>Category</th><th>Characters</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>Hypotaxis</strong></td><td>α β γ δ ε ζ η θ</td></tr>
+                <tr><td><strong>Expansion &amp; Projection</strong></td><td>= &nbsp; + &nbsp; × &nbsp; " &nbsp; '</td></tr>
+                <tr><td><strong>Structure &amp; Boundaries</strong></td><td>^ &nbsp; // &nbsp; / &nbsp; ‖ &nbsp; | &nbsp; ⁀ &nbsp; ≡</td></tr>
+                <tr><td><strong>Embedding &amp; Enclosure</strong></td><td>[ &nbsp; ] &nbsp; [[ &nbsp; ]] &nbsp; « &nbsp; » &nbsp; ⟨ &nbsp; ⟩ &nbsp; ⟪ &nbsp; ⟫</td></tr>
+                <tr><td><strong>Greek – Lowercase</strong></td><td>α β γ δ ε ζ η θ ι κ λ μ ν ξ ο π ρ σ ς τ υ φ χ ψ ω</td></tr>
+                <tr><td><strong>Greek – Uppercase</strong></td><td>Γ Δ Θ Λ Ξ Π Σ Φ Ψ Ω</td></tr>
+                <tr><td><strong>Arrows &amp; Other</strong></td><td>→ ⇒ ↔ ↗ ↘ ↑ ↓ Ø ∅ ≠ ≈</td></tr>
+            </tbody>
+        </table>
+        <p>
+            Inserted characters are ordinary text: they can be combined with formatting markup, saved in <code>.mak</code> files, stored in the label catalogue, and exported to PNG like any other label content. A label such as <code>×β</code> or <code>%Theme%</code> behaves exactly as if it had been typed from the keyboard.
+        </p>
+
+        <div class="note-block">
+            <strong>Tip:</strong> Characters you use constantly are often better stored as entries in the <a href="#label-catalogue">label catalogue</a>, where they become one-click quick-select options. The picker is the faster route for occasional or one-off symbols.
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <section id="extra-nodes">
         <h2>7. Extra nodes and elision</h2>
 
         <h3>Adding an extra child node</h3>
@@ -575,6 +641,7 @@
         <h3>Load Project</h3>
         <p>
             Click <span class="ui-element">Load Project</span> in the left panel and select a <code>.mak</code> file from your computer.
+        </p>
     </section>
 
     <!-- ═══════════════════════════════════════════ -->
@@ -592,6 +659,9 @@
         </ul>
         <p>
             Press <span class="key-tip">Enter</span> to confirm or <span class="key-tip">Esc</span> (or click outside the dialog) to cancel.
+        </p>
+        <p>
+            All label styling is rendered into the image: bold, italic, small caps, subscript, superscript and underline, together with any IPA or systemic functional characters used in the labels. The editing controls that appear on hover (add, remove, clear, edit buttons) are hidden during export and do not appear in the file.
         </p>
     </section>
 
@@ -653,4 +723,10 @@
         <p><strong>Carlos González Vergara</strong> (<strong><a href="mailto:cgonzalv@uc.cl">cgonzalv@uc.cl</a></strong>)</p>
         <p>Departamento de Ciencias del Lenguaje · Pontificia Universidad Católica de Chile</p>
         <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">
-            <img src="https://mirrors.creativeco
+            <img src="https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by-nc-nd.png"
+                 alt="Creative Commons BY-NC-ND 4.0" width="88" height="31" />
+        </a>
+    </footer>
+</div>
+</body>
+</html>
