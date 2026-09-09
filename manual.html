@@ -269,13 +269,25 @@
             M.A.K. uses a <strong>split layout</strong> with two areas:
         </p>
         <ul>
-            <li><strong>Left panel</strong> — a narrow sidebar containing the logo, the <span class="ui-element">✦ New Diagram</span> button, file operations (Save Project, Load Project, Download as Image), a <span class="ui-element">Labels</span> section for managing the label catalogue, a <span class="ui-element">Label Formatting</span> section with text-formatting buttons and the symbol picker, history controls (Undo, Redo), zoom controls, and a collapsible quick-reference guide.</li>
+            <li><strong>Left panel</strong> — a narrow sidebar containing the logo, the <span class="ui-element">✦ New Diagram</span> and <span class="ui-element">Manual</span> buttons, file operations (Save Project, Load Project, Download as Image), a <span class="ui-element">Labels</span> section, and a collapsible quick-reference guide.</li>
             <li><strong>Canvas</strong> — the main area where the tree diagram is displayed and edited. When no diagram is active, the canvas shows a placeholder message.</li>
         </ul>
-
-        <h3>Zoom</h3>
         <p>
-            The zoom controls are located in the left panel under the <em>Zoom</em> section. Use <code>[−]</code> and <code>[+]</code> to adjust the view, or click the percentage indicator to reset to 100%. The zoom range is 60%–200% in 20% increments.
+            The panel holds only what is always relevant. Controls that depend on what you are doing appear when they apply: the label formatting buttons, for instance, are shown under <span class="ui-element">Labels</span> only while a label is being edited (see <a href="#label-formatting">section 6b</a>).
+        </p>
+
+        <h3>Canvas controls</h3>
+        <p>
+            Two floating controls sit over the canvas itself, so they do not take up panel space. They are dimmed when idle and become fully opaque when you hover over them, and neither appears in an exported image.
+        </p>
+        <ul>
+            <li><strong>Top right</strong> — <strong>Undo</strong>, <strong>Redo</strong>, and the zoom controls. Use <code>[−]</code> and <code>[+]</code> to adjust the view, or click the percentage indicator to reset to 100%. The zoom range is 60%–200% in 20% increments.</li>
+            <li><strong>Top left</strong> — the auto-save indicator, showing whether M.A.K. is saving or how long ago the last save was made.</li>
+        </ul>
+
+        <h3>First run</h3>
+        <p>
+            The first time you open M.A.K. in a browser, a welcome dialog asks you to choose the language of the expressions you will analyse. This setting controls only how words are separated automatically when a diagram is created (see <a href="#word-separation">section 4</a>). Your choice is remembered, and it can be changed whenever you create a new diagram.
         </p>
 
         <h3>Auto-save</h3>
@@ -294,6 +306,7 @@
             <li>Click <span class="ui-element">✦ New Diagram</span> in the left panel.</li>
             <li>A dialog box appears. Type the expression you want to analyse in the text field.</li>
             <li>If you need <strong>IPA characters</strong>, click the <span class="ui-element">t͡ʃ IPA</span> button to open the IPA character picker. Characters are inserted at the cursor position in the text field.</li>
+            <li>Check the <strong>Word separation</strong> setting below the text field and change it if this expression is in a different language from the last one. The three options are described in <a href="#word-separation">section 4</a>.</li>
             <li>Click <span class="ui-element">Analyse</span> (or press <strong>Enter</strong>). The root node is created with the full expression.</li>
         </ol>
         <p>
@@ -307,7 +320,7 @@
 
         <h3>Undo and redo</h3>
         <p>
-            M.A.K. maintains a history of up to 50 states. Use the <strong>Undo</strong> and <strong>Redo</strong> buttons in the left panel, or the keyboard shortcuts (see <a href="#shortcuts">section 11</a>), to step back and forth through your editing history.
+            M.A.K. maintains a history of up to 50 states. Use the <strong>Undo</strong> and <strong>Redo</strong> buttons in the floating control at the top right of the canvas, or the keyboard shortcuts (see <a href="#shortcuts">section 11</a>), to step back and forth through your editing history.
         </p>
     </section>
 
@@ -322,9 +335,27 @@
             This process has two layers: one that applies silently (unambiguous cases) and one that asks for user confirmation (ambiguous cases).
         </p>
 
+        <h3>Choosing the language</h3>
+        <p>
+            The rules for Spanish and English are not interchangeable, so M.A.K. applies only the set that corresponds to the language you select. The setting is offered in the welcome dialog the first time you open the tool, and it can be changed in the <strong>Word separation</strong> control of the <span class="ui-element">✦ New Diagram</span> dialog. Your choice is remembered between sessions.
+        </p>
+        <table>
+            <thead>
+                <tr><th>Option</th><th>What it applies</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><span class="ui-element">Spanish</span></td><td>The Spanish contractions and fused pronouns, plus the enclitic-pronoun dialog.</td></tr>
+                <tr><td><span class="ui-element">English</span></td><td>The English contractions, plus the ambiguous <code>'s</code> / <code>'d</code> dialog.</td></tr>
+                <tr><td><span class="ui-element">None</span></td><td>Nothing. The expression is used exactly as typed.</td></tr>
+            </tbody>
+        </table>
+        <div class="note-block">
+            <strong>Note:</strong> M.A.K. has separation rules for Spanish and English only. If you work with any other language, choose <span class="ui-element">None</span>, which leaves every expression untouched. Selecting a language that does not match the expression produces unwanted separations: with Spanish selected, for instance, English <em>dime</em> would be offered as <em>di + me</em>, and <em>Al</em> would be expanded to <em>a el</em>.
+        </div>
+
         <h3>Silent expansions</h3>
         <p>
-            The following transformations are applied automatically when you click <span class="ui-element">Analyse</span>. They require no user action.
+            The following transformations are applied automatically when you click <span class="ui-element">Analyse</span>, provided the corresponding language is selected. They require no user action.
         </p>
         <p><strong>Spanish:</strong></p>
         <ul>
@@ -373,13 +404,8 @@
             Select the appropriate expansion for each item, then click <span class="ui-element">Apply and analyse</span>. If you prefer to keep all contractions unexpanded, click <span class="ui-element">Skip</span>.
         </p>
 
-        <h3>Processing order</h3>
-        <p>
-            When both Spanish and English phenomena are present in the same expression, M.A.K. processes them in sequence: first the Spanish clitic dialog (if applicable), then the English contraction dialog (if applicable). Silent expansions from both languages are always applied regardless.
-        </p>
-
         <div class="note-block">
-            <strong>Note:</strong> The word-separation system only runs when a new diagram is created. It does not affect text that is later edited manually within individual nodes.
+            <strong>Note:</strong> The word-separation system only runs when a new diagram is created. It does not affect text that is later edited manually within individual nodes, and changing the setting does not alter a diagram that already exists.
         </div>
     </section>
 
@@ -404,12 +430,23 @@
 
         <h3>Undoing a division</h3>
         <p>
-            If a node has been divided into children and you want to reverse that, hover over it and click the <span class="ui-element">↩</span> button on the right side of the node box. This removes all children and restores the node to its undivided state.
+            If a node has been divided into children and you want to reverse that, click the <span class="ui-element">↩</span> button to the right of the node box. It is visible without hovering, and it appears only on nodes that actually have children. This removes <strong>all</strong> children at once, together with any labels they carried, and restores the node to its undivided state. To remove a single branch instead, see below.
         </p>
+
+        <h3>Deleting a single branch</h3>
+        <p>
+            Hover over a node and click the red <strong>bin</strong> button at the top left of its label stack. This deletes that node and everything below it, while its sisters keep their own labels and structure. The button appears on every node except the root, and only one is shown at a time: the one belonging to the node your cursor is actually on.
+        </p>
+        <p>
+            Before you click, hovering over the button <strong>outlines the whole branch that will be removed</strong> and fades it out, so you can see the exact extent of the deletion. If the branch contains descendants or labels you have written, a confirmation dialog then states how many nodes and how many labels will be lost. Leaf nodes with no labels are deleted without confirmation. Deleting the last remaining child of a node returns that node to its undivided state, exactly as <span class="ui-element">↩</span> would.
+        </p>
+        <div class="note-block">
+            <strong>Note:</strong> Deleting a branch does not corrupt the analysis. The children of a node are not required to reconstruct its text: extra nodes and elision markers (see <a href="#extra-nodes">section 7</a>) already break that correspondence by design, and division always reads a node's own text rather than recomputing it from its children.
+        </div>
 
         <h3>Clearing node text</h3>
         <p>
-            You can remove a node's text while keeping its labels and children intact. Hover over the node and click the <span class="ui-element">✕</span> button in the upper-right corner. This is available on every node, including the root.
+            You can remove a node's text while keeping its labels and children intact. Hover over the node and click the <span class="ui-element">✕</span> button in the upper-right corner. This button appears only on nodes containing more than one word, which are the ones that can still be divided; it is not shown on single-word terminal nodes, on consolidated nodes, or on manually inserted ones.
         </p>
     </section>
 
@@ -434,7 +471,7 @@
         </p>
         <ul>
             <li>Hover over a label stack and click the <span class="ui-element">+</span> button to add a new row (up to 5).</li>
-            <li>Click the <span class="ui-element">×</span> button next to any row to remove it (minimum 1 row).</li>
+            <li>Click the <span class="ui-element">×</span> button next to any row to remove it. It appears only when a node has more than one row, since every node keeps at least one. This button removes a <strong>label row</strong>, not the node: to delete a node and its branch, see <a href="#division">section 5</a>.</li>
         </ul>
 
         <h3>Editing labels</h3>
@@ -470,6 +507,20 @@
 
         <p>
             M.A.K. allows each user to define a personal <strong>label catalogue</strong> — a set of labels that become available as quick-select options whenever a label field is being edited. This is particularly useful in teaching contexts or when working with a fixed analytical framework, as it reduces typing and minimises inconsistencies across diagrams.
+        </p>
+
+        <h3>Organising the catalogue into groups</h3>
+        <p>
+            Because a node can carry several label rows at once, and each row usually belongs to a different layer of analysis, a single undivided list makes the quick-select menu noisier the more complete your catalogue becomes. To avoid this, start a line with <code>#</code> to open a named group:
+        </p>
+        <div class="example-card">
+            <p><code># Transitivity</code><br>
+            <code>Actor, Process, Goal, Circumstance</code><br>
+            <code># Unit class</code><br>
+            <code>nominal group, verbal group, prepositional phrase</code></p>
+        </div>
+        <p>
+            The quick-select menu then shows your labels under those headings, and as you type it filters within each group and hides the ones with no matches. Labels written before the first <code>#</code> simply appear without a heading, so a catalogue with no groups at all behaves exactly as it always did and needs no conversion.
         </p>
 
         <h3>Setting up the catalogue</h3>
@@ -541,7 +592,7 @@
         <h2>6b. Label formatting and symbols</h2>
 
         <p>
-            The <span class="ui-element">Label Formatting</span> section of the left panel provides button-based access to text formatting and to the special characters used in systemic functional notation. Its controls act on the label that is currently being edited: click a label to enter edit mode, and the controls become active. While no label is being edited, the buttons are greyed out and a reminder is shown in their place.
+            Click a label to enter edit mode and a set of formatting controls appears in the left panel, under <span class="ui-element">Labels</span>. They give button-based access to text formatting and to the special characters used in systemic functional notation, and they act on the label you are editing. When you leave edit mode the controls disappear again, so the panel is not occupied by buttons that cannot be used.
         </p>
         <div class="note-block">
             <strong>Note:</strong> Clicking any of these controls does not close the label you are editing. You can apply several styles and insert several characters in succession without leaving edit mode, and the text cursor stays where you left it.
@@ -642,6 +693,19 @@
         <p>
             Click <span class="ui-element">Load Project</span> in the left panel and select a <code>.mak</code> file from your computer.
         </p>
+
+        <h3>Labels travel with the file</h3>
+        <p>
+            A saved <code>.mak</code> file also carries your <a href="#label-catalogue">label catalogue</a>, so an exercise can be shared complete: a teacher can send students a single file with the labels for the unit already in it, and your own catalogue follows a project between computers. Files saved with earlier versions of M.A.K. simply have no catalogue in them and open exactly as before.
+        </p>
+        <p>
+            When you open a file that includes labels, M.A.K. only interrupts you if something could be lost:
+        </p>
+        <ul>
+            <li>If your catalogue is empty, the labels from the file are loaded silently.</li>
+            <li>If you already have all of them, nothing happens.</li>
+            <li>If the file brings labels you do not have, a dialog lists them and offers three choices: <strong>Add the new ones</strong> (keeps your catalogue and appends what is missing), <strong>Replace mine</strong> (uses the file&rsquo;s catalogue instead of yours), or <strong>Keep mine</strong> (changes nothing). The diagram opens in all three cases.</li>
+        </ul>
     </section>
 
     <!-- ═══════════════════════════════════════════ -->
