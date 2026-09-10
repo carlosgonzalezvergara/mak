@@ -849,16 +849,22 @@
             letter-spacing: 0.04em; text-transform: uppercase;
             color: var(--ink-muted); margin-bottom: 5px;
         }
-        .lang-picker-row { display: flex; gap: 4px; }
-        .lang-picker-btn {
-            flex: 1; padding: 5px 8px;
-            border: 1px solid var(--rule-light); border-radius: 4px;
+        .lang-option-list { display: flex; flex-direction: column; gap: 5px; }
+        .lang-option {
+            display: flex; flex-direction: column; gap: 2px;
+            text-align: left; padding: 7px 10px;
+            border: 1px solid var(--rule-light); border-radius: 5px;
             background: white; cursor: pointer;
-            font-family: 'Source Sans 3', sans-serif; font-size: 12px; color: var(--ink);
-            transition: all 0.15s ease;
+            font-family: 'Source Sans 3', sans-serif; color: var(--ink);
+            transition: background 0.15s ease, border-color 0.15s ease;
         }
-        .lang-picker-btn:hover { border-color: var(--accent); }
-        .lang-picker-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .lang-option:hover { border-color: var(--accent); background: var(--cream); }
+        .lang-option strong { font-size: 12.5px; }
+        .lang-option span { font-size: 10.5px; color: var(--ink-muted); line-height: 1.35; }
+        .lang-option.active { background: var(--accent); border-color: var(--accent); }
+        .lang-option.active strong { color: white; }
+        .lang-option.active span { color: rgba(255,255,255,0.85); }
+
         .lang-picker-hint {
             font-size: 10.5px; color: var(--ink-muted); font-style: italic;
             margin-top: 5px; line-height: 1.35; min-height: 14px;
@@ -879,7 +885,7 @@
         }
         .label-import-more { font-size: 11px; color: var(--ink-muted); font-style: italic; align-self: center; }
 
-        /* Diálogo de primera apertura */
+        /* Opciones apiladas del diálogo de importación de etiquetas */
         .lang-choice-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
         .lang-choice {
             display: flex; flex-direction: column; gap: 3px;
@@ -1116,9 +1122,24 @@
         .btn { padding: 9px 20px; border: 1px solid transparent; border-radius: 6px; font-size: 14px; font-weight: 600; font-family: 'Source Sans 3', sans-serif; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; line-height: 1; user-select: none; }
         .btn:active { transform: translateY(1px); }
         .btn-primary { background-color: var(--accent); color: #fff; }
-        .btn-primary:hover { background-color: var(--accent-hover); }
+        .btn-primary:hover:not(:disabled) { background-color: var(--accent-hover); }
+
+        /* Estado inactivo de los botones de diálogo. No existía, así que un botón
+           deshabilitado se veía exactamente igual que uno disponible. */
+        .btn:disabled {
+            background-color: var(--parchment-deep);
+            border-color: var(--rule-light);
+            color: var(--ink-muted);
+            opacity: 0.65;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .btn:disabled:hover {
+            background-color: var(--parchment-deep);
+            border-color: var(--rule-light);
+        }
         .btn-outline { background-color: var(--cream); border-color: var(--rule); color: var(--ink); }
-        .btn-outline:hover { background-color: var(--parchment-deep); border-color: var(--ink-muted); }
+        .btn-outline:hover:not(:disabled) { background-color: var(--parchment-deep); border-color: var(--ink-muted); }
 
         /* ===========================================
         FOOTER ACTUALIZADO (inside panel)
@@ -3948,30 +3969,33 @@
 
                                 <div className="lang-picker">
                                     <span className="lang-picker-label">Word separation</span>
-                                    <div className="lang-picker-row">
+                                    <div className="lang-option-list">
                                         {[
-                                            { v: 'es', label: 'Spanish' },
-                                            { v: 'en', label: 'English' },
-                                            { v: 'none', label: 'None' },
+                                            { v: 'es', label: 'Spanish', hint: 'Splits del, al, conmigo and enclitic pronouns (dímelo → di me lo).' },
+                                            { v: 'en', label: 'English', hint: "Splits didn't, won't, I'm, and asks about ambiguous 's and 'd." },
+                                            { v: 'none', label: 'No automatic separation', hint: 'Leaves the expression exactly as typed. Use this for any other language.' },
                                         ].map(opt => (
                                             <button
                                                 key={opt.v}
                                                 type="button"
-                                                className={`lang-picker-btn ${analysisLang === opt.v ? 'active' : ''}`}
+                                                className={`lang-option ${analysisLang === opt.v ? 'active' : ''}`}
                                                 onClick={() => setAnalysisLang(opt.v)}
-                                            >{opt.label}</button>
+                                            >
+                                                <strong>{opt.label}</strong>
+                                                <span>{opt.hint}</span>
+                                            </button>
                                         ))}
-                                    </div>
-                                    <div className="lang-picker-hint">
-                                        {analysisLang === 'es' && 'Splits del, al, conmigo and enclitic pronouns (dímelo → di me lo).'}
-                                        {analysisLang === 'en' && "Splits didn't, won't, I'm, and asks about ambiguous 's and 'd."}
-                                        {analysisLang === 'none' && 'Leaves the expression exactly as typed.'}
                                     </div>
                                 </div>
 
                                 <div className="new-diagram-actions">
+                                    {!analysisLang && (
+                                        <span className="lang-picker-hint" style={{flex: 1, textAlign: 'left', margin: 0}}>
+                                            Choose a word separation option to continue.
+                                        </span>
+                                    )}
                                     <button className="btn btn-outline" onClick={() => setShowNewDiagram(false)}>Cancel</button>
-                                    <button className="btn btn-primary" onClick={handleNewDiagramConfirm} disabled={!newDiagramText.trim()}>Analyse</button>
+                                    <button className="btn btn-primary" onClick={handleNewDiagramConfirm} disabled={!newDiagramText.trim() || !analysisLang}>Analyse</button>
                                 </div>
                                 </>)}
 
@@ -4183,37 +4207,7 @@
                     />
                 )}
 
-                {/* PRIMERA APERTURA: elección de idioma. Se muestra mientras no haya
-                    ninguna preferencia guardada, y tiene prioridad sobre el diálogo de
-                    restauración para que no se solapen dos overlays. */}
-                {!analysisLang && (
-                    <div className="pos-overlay">
-                        <div className="new-diagram-modal" onClick={(e) => e.stopPropagation()}>
-                            <h4 className="new-diagram-title">Welcome to MAK</h4>
-                            <p className="new-diagram-sub">
-                                Before you start, choose the language of the expressions you will analyse.
-                                MAK uses this only to decide how to separate words automatically when a new
-                                diagram is created. You can change it at any time from the left panel.
-                            </p>
-                            <div className="lang-choice-list">
-                                <button type="button" className="lang-choice" onClick={() => setAnalysisLang('es')}>
-                                    <strong>Spanish</strong>
-                                    <span>Splits <em>del</em>, <em>al</em>, <em>conmigo</em> and enclitic pronouns (<em>dímelo → di me lo</em>).</span>
-                                </button>
-                                <button type="button" className="lang-choice" onClick={() => setAnalysisLang('en')}>
-                                    <strong>English</strong>
-                                    <span>Splits <em>didn't</em>, <em>won't</em>, <em>I'm</em>, and asks about ambiguous <em>'s</em> and <em>'d</em>.</span>
-                                </button>
-                                <button type="button" className="lang-choice" onClick={() => setAnalysisLang('none')}>
-                                    <strong>No automatic separation</strong>
-                                    <span>Leaves every expression exactly as typed. Use this for any other language.</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {restorePending && analysisLang && (
+                {restorePending && (
                     <RestoreModal
                         minutesAgo={restorePending.minutesAgo}
                         onContinue={acceptRestore}

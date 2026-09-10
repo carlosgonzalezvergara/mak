@@ -286,11 +286,6 @@
             <li><strong>Top left</strong> — the auto-save indicator, showing whether M.A.K. is saving or how long ago the last save was made.</li>
         </ul>
 
-        <h3>First run</h3>
-        <p>
-            The first time you open M.A.K. in a browser, a welcome dialog asks you to choose the language of the expressions you will analyse. This setting controls only how words are separated automatically when a diagram is created (see <a href="#word-separation">section 4</a>). Your choice is remembered, and it can be changed whenever you create a new diagram.
-        </p>
-
         <h3>Auto-save</h3>
         <p>
             M.A.K. automatically saves your work to the browser's local storage every few seconds. If you close the tab or browser and return later, M.A.K. shows a <strong>Restore previous session</strong> dialog indicating how long ago the backup was made and offering two options: <strong>Continue</strong> (loads the backup so you can pick up where you left off) or <strong>Discard</strong> (clears the backup and starts with a fresh canvas). This dialog requires an explicit choice — it cannot be dismissed by clicking outside. Press <span class="key-tip">Enter</span> to continue or <span class="key-tip">Esc</span> to discard. Auto-saved data is stored locally only; nothing is uploaded.
@@ -307,7 +302,7 @@
             <li>Click <span class="ui-element">✦ New Diagram</span> in the left panel.</li>
             <li>A dialog box appears. Type the expression you want to analyse in the text field.</li>
             <li>If you need <strong>IPA characters</strong>, click the <span class="ui-element">t͡ʃ IPA</span> button to open the IPA character picker. Characters are inserted at the cursor position in the text field.</li>
-            <li>Check the <strong>Word separation</strong> setting below the text field and change it if this expression is in a different language from the last one. The three options are described in <a href="#word-separation">section 4</a>.</li>
+            <li>Choose the <strong>Word separation</strong> option below the text field, or check that the remembered one still matches the language of this expression. Each option carries a short description of what it does, and the three are covered in <a href="#word-separation">section 4</a>.</li>
             <li>Click <span class="ui-element">Analyse</span> (or press <strong>Enter</strong>). The root node is created with the full expression.</li>
         </ol>
         <p>
@@ -338,7 +333,7 @@
 
         <h3>Choosing the language</h3>
         <p>
-            The rules for Spanish and English are not interchangeable, so M.A.K. applies only the set that corresponds to the language you select. The setting is offered in the welcome dialog the first time you open the tool, and it can be changed in the <strong>Word separation</strong> control of the <span class="ui-element">✦ New Diagram</span> dialog. Your choice is remembered between sessions.
+            The rules for Spanish and English are not interchangeable, so M.A.K. applies only the set that corresponds to the language you select. The choice is made in the <strong>Word separation</strong> control of the <span class="ui-element">✦ New Diagram</span> dialog, alongside the expression you are about to analyse, and it is remembered between sessions. There is no default: on a first visit no option is preselected and <span class="ui-element">Analyse</span> stays inactive until you pick one, since the appropriate rules cannot be guessed from the expression.
         </p>
         <table>
             <thead>
