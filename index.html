@@ -668,15 +668,20 @@
             padding: 0; z-index: 5;
         }
         .labels-stack:hover .label-add-btn { opacity: 1; pointer-events: auto; }
+        /* Una sola regla: antes había dos declaraciones :hover y la segunda anulaba el
+           fondo de la primera, así que solo cambiaba el color del signo. */
         .label-add-btn:hover {
-            background: var(--accent-soft);
-            border-color: var(--accent-border);
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
         }
 
         .label-remove-btn {
+            /* En la esquina inferior derecha de la caja, montada sobre ella. Antes iba
+               separada a la derecha y chocaba con el botón de deshacer división, que
+               ocupa la esquina superior derecha de la pila. */
             position: absolute;
-            right: -16px; top: 50%;
-            transform: translateY(-50%);
+            right: -7px; bottom: -7px;
             width: 14px; height: 14px;
             border-radius: 50%;
             border: 1px solid #dcc;
@@ -706,22 +711,31 @@
         .label-row:hover::after {
             content: '';
             position: absolute;
-            top: -10px;
-            bottom: -10px;
-            right: -20px; /* Cubre el espacio vacío hacia el botón x */
-            width: 20px;
+            bottom: -12px;
+            right: -12px;
+            width: 26px;
+            height: 26px;
             z-index: 4;
         }
 
         /* ===========================================
            NODE ACTION BUTTONS
            =========================================== */
+        /* Ocultar el texto del nodo. Ya no es una ✕, porque la operación no destruye
+           nada y porque había dos ✕ distintas en pantalla. El ojo tachado dice lo que
+           hace, y el color de acento lo separa del rojo de las acciones destructivas. */
         .clear-text-btn {
             position: absolute; top: -10px; right: -10px;
-            background: #c44; color: white; border: none; border-radius: 50%;
-            width: 18px; height: 18px; font-size: 10px;
+            background: var(--accent); color: white; border: none; border-radius: 50%;
+            width: 18px; height: 18px; padding: 0;
             cursor: pointer; display: none;
             align-items: center; justify-content: center;
+        }
+        .clear-text-btn svg { display: block; }
+        .clear-text-btn { transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease; }
+        .clear-text-btn:hover {
+            background: white; color: var(--accent);
+            box-shadow: inset 0 0 0 1px var(--accent);
         }
         .node-box:hover .clear-text-btn { display: flex; }
 
@@ -747,6 +761,13 @@
             justify-content: center;
         }
         .node-box:hover .add-node-btn { display: flex; }
+        /* Al pasar el cursor, los botones de nodo invierten o intensifican su color, como
+           ya hacían la papelera y el botón de deshacer división. */
+        .add-node-btn { transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease; }
+        .add-node-btn:hover {
+            background: white; color: var(--accent);
+            box-shadow: inset 0 0 0 1px var(--accent);
+        }
 
         .consolidate-btn {
             position: absolute; top: -10px; left: -10px;
@@ -756,6 +777,11 @@
             align-items: center; justify-content: center;
         }
         .node-box:hover .consolidate-btn { display: flex; }
+        .consolidate-btn { transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease; }
+        .consolidate-btn:hover {
+            background: white; color: #C4963C;
+            box-shadow: inset 0 0 0 1px #C4963C;
+        }
 
         /* ===========================================
            EDIT NODE TEXT
@@ -769,6 +795,11 @@
             z-index: 10;
         }
         .node-box:hover .edit-text-btn { display: flex; }
+        .edit-text-btn { transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease; }
+        .edit-text-btn:hover {
+            background: white; color: #4A8B71;
+            box-shadow: inset 0 0 0 1px #4A8B71;
+        }
 
         /* Papelera de rama: vive al inicio de la pila de etiquetas, que es donde el
            usuario percibe que empieza la rama, y no dentro de una fila de etiqueta. */
@@ -783,6 +814,21 @@
             z-index: 20;
         }
         .branch-delete-btn:hover { background: #c44; color: white; border-color: #c44; }
+
+        /* Botón de recuperación en los nodos sin caja: espejo de la papelera, al otro
+           extremo de la pila de etiquetas y en el color de acento, no en rojo, porque
+           no destruye nada que no se pueda volver a hacer. */
+        .node-recover-btn {
+            position: absolute; top: -8px; right: -8px;
+            background: white; color: var(--accent); border: 1px solid var(--rule-light);
+            border-radius: 50%; width: 18px; height: 18px;
+            font-size: 10px; line-height: 1; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0;
+            transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+            z-index: 20;
+        }
+        .node-recover-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
         /* El SVG usa currentColor, así que se invierte junto con el botón al pasar
            el cursor, igual que el resto de los íconos de trazo de la interfaz. */
         .branch-delete-btn svg { display: block; }
@@ -966,7 +1012,12 @@
         /* ===========================================
            LABEL FORMATTING CONTROLS (SIDE PANEL)
            =========================================== */
-        .fmt-controls { display: flex; flex-direction: column; gap: 6px; }
+        .fmt-controls { display: flex; flex-direction: column; gap: 6px; transition: opacity 0.2s ease; }
+        /* Sin etiqueta en edición los controles siguen visibles, para que se sepa que
+           existen, pero atenuados. El desplegable de símbolos se puede abrir igual: lo
+           que queda inerte es la inserción, no la consulta. */
+        .fmt-controls-idle { opacity: 0.5; }
+        .fmt-controls-idle .fmt-sym-toggle { opacity: 1; }
         .fmt-btn-row { display: flex; gap: 3px; }
         /* Los seis botones se reparten el ancho completo de la barra, para que la fila
            quede alineada con el botón de símbolos que va debajo. min-width: 0 evita que
@@ -1080,16 +1131,17 @@
             border-top: 1px solid var(--rule);
         }
 
+        /* Los cuatro elementos del pie van apilados: CC, cgv.tools, nombre y correo. */
         .footer-logos {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 12px;
+            gap: 10px;
             margin-bottom: 10px;
         }
 
         .footer-logo-brand {
-            height: 15px; /* Ligeramente más pequeño para el panel lateral */
+            height: 18px; /* 50% más que los 15px iniciales, ahora que va en su propia línea */
             width: auto;
             opacity: 0.6; /* Más integrado con la estética de "tinta" */
             transition: opacity 0.2s;
@@ -2630,6 +2682,62 @@
                 setSelectedCuts([]);
             };
 
+            // ===========================================
+            // OCULTAR Y RESTAURAR EL TEXTO DE UN NODO
+            // ===========================================
+            // El botón ✕ no destruye el texto: lo guarda en hiddenText. En un diagrama
+            // sistémico-funcional uno no quiere el segmento repetido en cada nivel, pero
+            // tampoco quiere perderlo, porque es lo que permite volver atrás.
+            const hideNodeText = (nodeId) => {
+                setTree(prev => {
+                    const node = findNodeById(prev, nodeId);
+                    if (!node || !node.text) return prev;
+                    return updateNode(prev, nodeId, { text: '', hiddenText: node.text });
+                });
+            };
+
+            // Reconstruye el segmento juntando las hojas del subárbol. Es el recurso para
+            // los archivos guardados antes de que existiera hiddenText, donde el texto se
+            // perdió de verdad. Se omiten los nodos insertados a mano y la elipsis, que no
+            // formaban parte de la expresión original.
+            const collectLeafText = (node) => {
+                const parts = [];
+                const walk = (n) => {
+                    if (n.isInserted || n.isElision) return;
+                    if (n.children && n.children.length) { n.children.forEach(walk); return; }
+                    if (n.text && n.text.trim() && n.text.trim() !== '∅') parts.push(n.text.trim());
+                };
+                walk(node);
+                return parts.join(' ');
+            };
+
+            const recoverText = (node) =>
+                (node.hiddenText && node.hiddenText.trim()) ? node.hiddenText : collectLeafText(node);
+
+            const restoreNodeText = (nodeId) => {
+                setTree(prev => {
+                    const node = findNodeById(prev, nodeId);
+                    if (!node) return prev;
+                    return updateNode(prev, nodeId, { text: recoverText(node), hiddenText: null });
+                });
+            };
+
+            // Deshacer una división. Si el texto del nodo estaba oculto, se restaura, de
+            // modo que el nodo vuelve a ser una caja sin dividir con su segmento dentro y
+            // no un nodo vacío inservible.
+            const revertDivision = (nodeId) => {
+                setTree(prev => {
+                    const node = findNodeById(prev, nodeId);
+                    if (!node) return prev;
+                    const patch = { children: null };
+                    if (!node.text || !node.text.trim()) {
+                        patch.text = recoverText(node);
+                        patch.hiddenText = null;
+                    }
+                    return updateNode(prev, nodeId, patch);
+                });
+            };
+
             const toggleConsolidated = (nodeId) => {
                 setTree(prev => {
                     const node = findNodeById(prev, nodeId);
@@ -2864,6 +2972,7 @@
                     const editBtns = treeWrapper.querySelectorAll('.edit-text-btn');
                     const consolidateBtns = treeWrapper.querySelectorAll('.consolidate-btn');
                     const deleteBranchBtns = treeWrapper.querySelectorAll('.branch-delete-btn');
+                    const recoverBtns = treeWrapper.querySelectorAll('.node-recover-btn');
 
                     undoBtns.forEach(b => b.style.visibility = 'hidden');
                     clearBtns.forEach(b => b.style.display = 'none');
@@ -2873,6 +2982,7 @@
                     editBtns.forEach(b => b.style.display = 'none');
                     consolidateBtns.forEach(b => b.style.display = 'none');
                     deleteBranchBtns.forEach(b => b.style.display = 'none');
+                    recoverBtns.forEach(b => b.style.display = 'none');
 
                     const connectors = treeWrapper.querySelectorAll('.connector-v, .v-line-stem');
                     const nodeBoxes = treeWrapper.querySelectorAll('.node-box');
@@ -2972,6 +3082,7 @@
                     editBtns.forEach(b => b.style.display = '');
                     consolidateBtns.forEach(b => b.style.display = '');
                     deleteBranchBtns.forEach(b => b.style.display = '');
+                    recoverBtns.forEach(b => b.style.display = '');
 
                 } finally {
                     setZoomLevel(savedZoom);
@@ -3129,13 +3240,22 @@
                 );
             };
 
-            const renderLabelsStack = (node, parentId = null, showDelete = false) => {
+            const renderLabelsStack = (node, parentId = null, showDelete = false, recovery = null) => {
                 const labels = node.labels || [''];
                 return (
                     <div className="labels-stack">
                         {/* La papelera va aquí, al inicio de la columna, porque es donde el
                             usuario percibe que empieza la rama. Está fuera de las filas de
                             etiqueta para no confundirse con la × que borra una fila. */}
+                        {/* En los nodos sin caja de texto, los controles de recuperación
+                            viven aquí, porque la pila de etiquetas es lo único que existe. */}
+                        {recovery && showDelete && (
+                            <button
+                                className="node-recover-btn"
+                                title={recovery.revertTitle}
+                                onClick={(e) => { e.stopPropagation(); (recovery.onRevert || recovery.onRestore)(); }}
+                            >↩</button>
+                        )}
                         {parentId && showDelete && (
                             <button
                                 className="branch-delete-btn"
@@ -3197,7 +3317,10 @@
                         <div className={`node-container ${isDoomed ? 'branch-doomed' : ''}`} key={node.id}
                              onMouseOver={(e) => { e.stopPropagation(); setHoverNodeId(node.id); }}
                              onMouseOut={(e) => { e.stopPropagation(); setHoverNodeId(null); }}>
-                            {renderLabelsStack(node, parentId, hoverNodeId === node.id)}
+                            {renderLabelsStack(node, parentId, hoverNodeId === node.id, {
+                                onRevert: () => revertDivision(node.id),
+                                revertTitle: 'Undo division (restores the hidden segment)',
+                            })}
                             <div style={{display:'flex', flexDirection:'column', alignItems:'center', width:'100%'}}>
                                 <div className="connector-v" style={{height:'calc(var(--row-h) / 2)'}} />
                                 <div className="children-container">
@@ -3217,7 +3340,12 @@
                     <div className={`node-container ${isDoomed ? 'branch-doomed' : ''}`} key={node.id}
                          onMouseOver={(e) => { e.stopPropagation(); setHoverNodeId(node.id); }}
                          onMouseOut={(e) => { e.stopPropagation(); setHoverNodeId(null); }}>
-                        {!isRoot && renderLabelsStack(node, parentId, hoverNodeId === node.id)}
+                        {!isRoot && renderLabelsStack(node, parentId, hoverNodeId === node.id,
+                            (isEmpty && !hasC) ? {
+                                onRestore: () => restoreNodeText(node.id),
+                                revertTitle: 'Restore hidden text',
+                            } : null
+                        )}
 
                         {isEmpty ? (
                             isRoot ? null : <div className="connector-v" style={{ height: 'var(--row-h)' }} />
@@ -3286,14 +3414,21 @@
                                                 </button>
                                             )}
                                             {!isEditingText && canDivide && (
-                                                <button className="clear-text-btn" title="Clear text" onClick={(e) => { e.stopPropagation(); setTree(prev => updateNode(prev, node.id, { text: '' })); }}>✕</button>
+                                                <button className="clear-text-btn" title="Hide text (it can be restored)" onClick={(e) => { e.stopPropagation(); hideNodeText(node.id); }}>
+                                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+                                                        <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>
+                                                        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                                                        <path d="M2 2l20 20"></path>
+                                                    </svg>
+                                                </button>
                                             )}
                                             {!isEditingText && (
                                                 <button className="edit-text-btn" title="Edit text" onClick={(e) => { e.stopPropagation(); setEditingNode(node.id); }}>✎</button>
                                             )}
                                         </div>
                                         {hasC && (
-                                            <button className="btn-danger-soft node-revert-btn" onClick={(e) => { e.stopPropagation(); setTree(prev => updateNode(prev, node.id, { children: null })); }} title="Undo division">↩</button>
+                                            <button className="btn-danger-soft node-revert-btn" onClick={(e) => { e.stopPropagation(); revertDivision(node.id); }} title="Undo division">↩</button>
                                         )}
                                     </div>
                                 )}
@@ -3301,11 +3436,21 @@
                             </>
                         )}
 
-                        {/* Lower labels: root node only */}
+                        {/* Lower labels: root node only. Si el texto de la raíz está oculto
+                            no hay caja donde colgar los controles, así que la recuperación
+                            se ofrece aquí, en la primera etiqueta bajo el nodo invisible. */}
                         {isRoot && (
                             <>
                                 {!isEmpty && <div className="connector-v" style={{height:'var(--row-h)'}} />}
-                                {renderLabelsStack(node)}
+                                {renderLabelsStack(node, null, hoverNodeId === node.id,
+                                    isEmpty ? (hasC ? {
+                                        onRevert: () => revertDivision(node.id),
+                                        revertTitle: 'Undo division (restores the hidden segment)',
+                                    } : {
+                                        onRestore: () => restoreNodeText(node.id),
+                                        revertTitle: 'Restore hidden text',
+                                    }) : null
+                                )}
                             </>
                         )}
 
@@ -3509,23 +3654,24 @@
                             {/* Controles de formato: contextuales. Solo se dibujan mientras hay
                             una etiqueta en edición, así el panel no carga con seis botones
                             grises y una línea de ayuda el resto del tiempo. */}
-                            {editingLabel && (
-                            <div className="fmt-controls" style={{marginTop: '8px'}}>
+                            {/* Siempre presentes, para que se sepa que existen, pero
+                                atenuados e inertes mientras no haya una etiqueta en edición. */}
+                            <div className={`fmt-controls ${editingLabel ? '' : 'fmt-controls-idle'}`} style={{marginTop: '8px'}}>
                                 {/* onMouseDown + preventDefault en todos los botones: así el
                                     clic no le roba el foco a la etiqueta que se está editando. */}
                                 <div className="fmt-btn-row">
-                                    <button type="button" className="fmt-btn" style={{fontWeight: 700}} title="Bold (**…**)"
-                                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); wrapLabelSelection('**'); }}>B</button>
-                                    <button type="button" className="fmt-btn" style={{fontStyle: 'italic'}} title="Italic (*…*)"
-                                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); wrapLabelSelection('*'); }}>I</button>
-                                    <button type="button" className="fmt-btn" style={{fontVariant: 'small-caps', textTransform: 'lowercase'}} title="Small caps (%…%)"
-                                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); wrapLabelSelection('%'); }}>SC</button>
-                                    <button type="button" className="fmt-btn" title="Subscript (_…_)"
-                                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); wrapLabelSelection('_'); }}><span>X<sub style={{fontSize:'0.7em'}}>2</sub></span></button>
-                                    <button type="button" className="fmt-btn" title="Superscript (__…__)"
-                                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); wrapLabelSelection('__'); }}><span>X<sup style={{fontSize:'0.7em'}}>2</sup></span></button>
-                                    <button type="button" className="fmt-btn" style={{textDecoration: 'underline'}} title="Underline (~…~)"
-                                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); wrapLabelSelection('~'); }}>U</button>
+                                    <button type="button" className="fmt-btn" disabled={!editingLabel} style={{fontWeight: 700}} title="Bold (**…**)"
+                                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); if (editingLabel) wrapLabelSelection('**'); }}>B</button>
+                                    <button type="button" className="fmt-btn" disabled={!editingLabel} style={{fontStyle: 'italic'}} title="Italic (*…*)"
+                                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); if (editingLabel) wrapLabelSelection('*'); }}>I</button>
+                                    <button type="button" className="fmt-btn" disabled={!editingLabel} style={{fontVariant: 'small-caps', textTransform: 'lowercase'}} title="Small caps (%…%)"
+                                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); if (editingLabel) wrapLabelSelection('%'); }}>SC</button>
+                                    <button type="button" className="fmt-btn" disabled={!editingLabel} title="Subscript (_…_)"
+                                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); if (editingLabel) wrapLabelSelection('_'); }}><span>X<sub style={{fontSize:'0.7em'}}>2</sub></span></button>
+                                    <button type="button" className="fmt-btn" disabled={!editingLabel} title="Superscript (__…__)"
+                                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); if (editingLabel) wrapLabelSelection('__'); }}><span>X<sup style={{fontSize:'0.7em'}}>2</sup></span></button>
+                                    <button type="button" className="fmt-btn" disabled={!editingLabel} style={{textDecoration: 'underline'}} title="Underline (~…~)"
+                                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); if (editingLabel) wrapLabelSelection('~'); }}>U</button>
                                 </div>
 
                                 <button
@@ -3548,9 +3694,9 @@
                                                             key={j}
                                                             type="button"
                                                             className="ipa-char-btn"
-                                                           
+                                                            disabled={!editingLabel}
                                                             title={ch}
-                                                            onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); insertSymbolInLabel(ch); }}
+                                                            onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); if (editingLabel) insertSymbolInLabel(ch); }}
                                                         >{ch}</button>
                                                     ))}
                                                 </div>
@@ -3560,7 +3706,6 @@
                                 )}
 
                             </div>
-                        )}
                         </div>
 
                         {/* QUICK GUIDE */}
@@ -3580,20 +3725,15 @@
                             >
                                 <div className="panel-guide-inner" ref={guideInnerRef}>
                                     <div className="guide-section">
-                                        <div className="guide-section-title">Starting a diagram</div>
-                                        <ul>
-                                            <li>In <strong>New Diagram</strong>, choose the <strong>word separation</strong> language before analysing. Spanish splits <em>del</em>, <em>al</em> and enclitic pronouns; English splits <em>didn't</em>, <em>I'm</em> and asks about ambiguous <code>'s</code> and <code>'d</code>; None leaves the expression as typed.</li>
-                                            <li>Use <code>t͡ʃ IPA</code> in the same dialog to type phonetic characters into the expression.</li>
-                                        </ul>
-                                    </div>
-                                    <div className="guide-section">
                                         <div className="guide-section-title">Constituents & Nodes</div>
                                         <ul>
                                             <li>Click on a node to enter <strong>division mode</strong>. Click the spaces between words to mark your exact cuts, then press "Divide".</li>
                                             <li>Click <code>✎</code> (bottom right) to edit the text of any node directly.</li>
                                             <li>Click <code>∪</code> (top left) to consolidate a node (preventing further division) and <code>÷</code> to allow it again.</li>
                                             <li>Click <code>+₁</code> (bottom center) to manually add an extra child node.</li>
-                                            <li>Click <code>↩</code> (right side) to undo a division, and <code>✕</code> (top right) to clear a node's text. <code>✕</code> only appears on nodes with more than one word.</li>
+                                            <li>Click the <strong>eye icon</strong> (top right of a text box) to hide a node's text, so only its labels show. This icon only appears on divisible nodes.</li>
+                                            <li>Click <code>↩</code> to undo a division and get the node back as a single undivided box, with its segment restored. On nodes that show a text box it sits to the right of the box. On nodes whose text is hidden it appears at the top right of the label stack, opposite the delete button, and on the root node it appears on the label row below it.</li>
+                                            <li>On a node with no children whose text is hidden, that same <code>↩</code> brings the text back.</li>
                                             <li>Click the red <strong>bin</strong> button (top left of a label stack) to delete a single branch, keeping its siblings and their labels. Hovering it outlines everything that will be removed.</li>
                                         </ul>
                                     </div>
@@ -3602,9 +3742,10 @@
                                         <ul>
                                             <li>The root node displays its labels <strong>below</strong> the text, while all child nodes display them <strong>above</strong>.</li>
                                             <li>Hover over a label stack and click <code>+</code> to add up to 5 rows for simultaneous analysis.</li>
-                                            <li>Click the <code>×</code> button next to any row to remove it. This appears only when a node has more than one row, since every node keeps at least one.</li>
+                                            <li>Click the small <code>×</code> at the bottom right of a label box to remove that row. This appears only when a node has more than one row, since every node keeps at least one.</li>
                                             <li>Press <code>Tab</code> while editing to move to the next label or the next constituent. Use <code>Shift + Tab</code> to go back.</li>
-                                            <li>Use <strong>Labels</strong> in the panel to set up a catalogue of quick-select tags available when editing any label.</li>
+                                            <li>Use <strong>Labels</strong> in the panel to set up a catalogue of quick-select tags available when editing any label. Start a line with <code>#</code> to name a group, and the quick-select list will show your labels under that heading.</li>
+                                            <li>Your catalogue travels inside the <code>.mak</code> file, so an exercise can be shared with its labels already loaded.</li>
                                         </ul>
                                     </div>
                                     <div className="guide-section">
@@ -3616,7 +3757,7 @@
                                             <li><code>__text__</code> for <sup>superscript</sup></li>
                                             <li><code>%text%</code> for <span style={{fontVariant: 'small-caps', textTransform: 'lowercase'}}>small caps</span></li>
                                             <li><code>~text~</code> for <u>underline</u></li>
-                                            <li>Click a label to start editing and the formatting buttons appear under <strong>Labels</strong> in the panel. Open <code>α Symbols</code> there to insert Greek letters and systemic functional notation.</li>
+                                            <li>The formatting buttons and <code>α Symbols</code> live under <strong>Labels</strong> in the panel. They are dimmed until you click a label to edit it, and then they act on that label. The symbol list can be opened for consultation at any time.</li>
                                             <li style={{ marginBottom: '10px' }}>All six styles and any inserted characters are kept in the exported image.</li>
                                         </ul>
                                     </div>
@@ -3638,7 +3779,7 @@
 
                         <footer className="footer">
                             <div className="footer-logos">
-                                {/* Tu nuevo logo con enlace a cgv.tools */}
+                                {/* Tu logo con enlace a cgv.tools */}
                                 <a href="https://cgv.tools" target="_blank" rel="noopener noreferrer">
                                     <img 
                                         src="cgv-tools.png" 

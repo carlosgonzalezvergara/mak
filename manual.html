@@ -240,6 +240,7 @@
             <li><a href="#labels">6. The label system</a></li>
             <li><a href="#label-catalogue">6a. The label catalogue</a></li>
             <li><a href="#label-formatting">6b. Label formatting and symbols</a></li>
+            <li><a href="#controls-summary">6c. Telling the delete controls apart</a></li>
             <li><a href="#extra-nodes">7. Extra nodes and elision</a></li>
             <li><a href="#editing">8. Editing node text</a></li>
             <li><a href="#files">9. File management</a></li>
@@ -273,7 +274,7 @@
             <li><strong>Canvas</strong> — the main area where the tree diagram is displayed and edited. When no diagram is active, the canvas shows a placeholder message.</li>
         </ul>
         <p>
-            The panel holds only what is always relevant. Controls that depend on what you are doing appear when they apply: the label formatting buttons, for instance, are shown under <span class="ui-element">Labels</span> only while a label is being edited (see <a href="#label-formatting">section 6b</a>).
+            Controls whose effect depends on what you are doing show that in their appearance. The label formatting buttons under <span class="ui-element">Labels</span>, for instance, are always in view but dimmed and inactive until you click a label to edit it (see <a href="#label-formatting">section 6b</a>).
         </p>
 
         <h3>Canvas controls</h3>
@@ -430,7 +431,23 @@
 
         <h3>Undoing a division</h3>
         <p>
-            If a node has been divided into children and you want to reverse that, click the <span class="ui-element">↩</span> button to the right of the node box. It is visible without hovering, and it appears only on nodes that actually have children. This removes <strong>all</strong> children at once, together with any labels they carried, and restores the node to its undivided state. To remove a single branch instead, see below.
+            To reverse a division, click the <span class="ui-element">↩</span> button. It removes <strong>all</strong> children of that node at once, together with any labels they carried, and gives the node back as a single undivided box <strong>with its segment inside</strong>, ready to be analysed again. To remove one branch and keep the others, see below instead.
+        </p>
+        <p>
+            Where the button sits depends on whether the node shows a text box, because a node whose text is hidden has no box to hang controls on:
+        </p>
+        <table>
+            <thead>
+                <tr><th>Node</th><th>Position of <span class="ui-element">↩</span></th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Text visible</td><td>To the right of the text box. Visible without hovering.</td></tr>
+                <tr><td>Text hidden</td><td>Top right of the label stack, opposite the delete button. Appears on hover.</td></tr>
+                <tr><td>Root node, text hidden</td><td>On the label row below it, since the root displays its labels underneath.</td></tr>
+            </tbody>
+        </table>
+        <p>
+            On a node with no children whose text is hidden, the same button restores the text instead of collapsing a division. Every hidden node therefore has a way back.
         </p>
 
         <h3>Deleting a single branch</h3>
@@ -444,9 +461,15 @@
             <strong>Note:</strong> Deleting a branch does not corrupt the analysis. The children of a node are not required to reconstruct its text: extra nodes and elision markers (see <a href="#extra-nodes">section 7</a>) already break that correspondence by design, and division always reads a node's own text rather than recomputing it from its children.
         </div>
 
-        <h3>Clearing node text</h3>
+        <h3>Hiding node text</h3>
         <p>
-            You can remove a node's text while keeping its labels and children intact. Hover over the node and click the <span class="ui-element">✕</span> button in the upper-right corner. This button appears only on nodes containing more than one word, which are the ones that can still be divided; it is not shown on single-word terminal nodes, on consolidated nodes, or on manually inserted ones.
+            In a systemic functional diagram you rarely want the segment repeated at every level, since the labels carry the analysis. Hover over a node and click the <strong>crossed-out eye</strong> in the upper-right corner to hide its text while keeping its labels and children intact. The button appears only on nodes containing more than one word, which are the ones that can still be divided; it is not shown on single-word terminal nodes, on consolidated nodes, or on manually inserted ones.
+        </p>
+        <div class="note-block">
+            <strong>Note:</strong> Hiding is not deleting. M.A.K. keeps the segment inside the node, which is what allows <span class="ui-element">↩</span> to give it back to you later. In files saved before this behaviour existed the text was genuinely lost, and in those cases <span class="ui-element">↩</span> rebuilds the segment by joining the leaves of the branch, skipping inserted nodes and elision markers.
+        </div>
+        <p>
+            To bring a hidden text back without undoing anything, use the <span class="ui-element">↩</span> button described above: on a node with no children it restores the text rather than collapsing a division.
         </p>
     </section>
 
@@ -471,7 +494,7 @@
         </p>
         <ul>
             <li>Hover over a label stack and click the <span class="ui-element">+</span> button to add a new row (up to 5).</li>
-            <li>Click the <span class="ui-element">×</span> button next to any row to remove it. It appears only when a node has more than one row, since every node keeps at least one. This button removes a <strong>label row</strong>, not the node: to delete a node and its branch, see <a href="#division">section 5</a>.</li>
+            <li>Click the small <span class="ui-element">×</span> at the <strong>bottom right</strong> of a label box to remove that row. It appears only when a node has more than one row, since every node keeps at least one. This button removes a <strong>label row</strong>, not the node: to delete a node and its branch, see <a href="#division">section 5</a>.</li>
         </ul>
 
         <h3>Editing labels</h3>
@@ -592,7 +615,7 @@
         <h2>6b. Label formatting and symbols</h2>
 
         <p>
-            Click a label to enter edit mode and a set of formatting controls appears in the left panel, under <span class="ui-element">Labels</span>. They give button-based access to text formatting and to the special characters used in systemic functional notation, and they act on the label you are editing. When you leave edit mode the controls disappear again, so the panel is not occupied by buttons that cannot be used.
+            Under <span class="ui-element">Labels</span> in the left panel there is a row of formatting buttons and an <span class="ui-element">α Symbols</span> list, giving button-based access to text formatting and to the special characters used in systemic functional notation. They act on the label you are editing, so they are dimmed and inactive until you click a label to enter edit mode. The symbol list is the one exception: it can be opened and browsed at any time, since consulting the inventory is useful even when there is nothing to insert into.
         </p>
         <div class="note-block">
             <strong>Note:</strong> Clicking any of these controls does not close the label you are editing. You can apply several styles and insert several characters in succession without leaving edit mode, and the text cursor stays where you left it.
@@ -644,6 +667,39 @@
         <div class="note-block">
             <strong>Tip:</strong> Characters you use constantly are often better stored as entries in the <a href="#label-catalogue">label catalogue</a>, where they become one-click quick-select options. The picker is the faster route for occasional or one-off symbols.
         </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <section id="controls-summary">
+        <h2>6c. Telling the delete controls apart</h2>
+        <p>
+            Three controls remove or hide something, and they are deliberately different in shape, position and colour so they are not confused with one another.
+        </p>
+        <table>
+            <thead>
+                <tr><th>Control</th><th>Position</th><th>What it does</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Small <span class="ui-element">×</span></td>
+                    <td>Bottom right of a label box</td>
+                    <td>Removes that <strong>label row</strong> only. Nothing else changes.</td>
+                </tr>
+                <tr>
+                    <td><strong>Crossed-out eye</strong></td>
+                    <td>Top right of a text box</td>
+                    <td>Hides the node&rsquo;s <strong>text</strong>. Reversible, and the segment is kept.</td>
+                </tr>
+                <tr>
+                    <td>Red <strong>bin</strong></td>
+                    <td>Top left of a label stack</td>
+                    <td>Deletes the whole <strong>branch</strong> below and including that node.</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            Red is reserved for the only one of the three that destroys structure. The other two use the accent colour, and both can be undone with <span class="ui-element">↩</span> or with <strong>Undo</strong>.
+        </p>
     </section>
 
     <!-- ═══════════════════════════════════════════ -->
